@@ -1,5 +1,13 @@
-// https://nuxt.com/docs/api/configuration/nuxt-config
 export default defineNuxtConfig({
-  compatibilityDate: '2025-07-15',
-  devtools: { enabled: true }
+  devtools: true,
+  nitro: {
+    devProxy: {
+      '/api': {
+        target: 'http://localhost:5000',
+        changeOrigin: true,
+        prependPath: false,
+      }
+    }
+  },
+  modules: ['@nuxtjs/tailwindcss']
 })
