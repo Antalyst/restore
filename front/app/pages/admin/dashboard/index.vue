@@ -1,11 +1,10 @@
 <template>
     <div>
-        <Admin />
+        hellow admin
     </div>
 </template>
 
 <script setup>
-     
 </script>
 
 <style lang="scss" scoped>
