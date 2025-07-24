@@ -1,19 +1,17 @@
 const express = require('express');
-const bodyparser  = require("body-parser")
 const cookieParser = require('cookie-parser');
-const cors = require('cors')
-
-
+const cors = require('cors');
 const app = express();
-app.use(cors())
-app.use(bodyparser.urlencoded({extended : false}))
-app.use(bodyparser.json())
+
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
+app.use(cors({
+  origin: 'http://localhost:3000',
+  credentials: true,
+}));
 
-const testRoute = require("./api/route/test")
 const authRoutes = require('./api/route/auth');
-
 app.use('/api/auth', authRoutes);
-app.use('/api/test', testRoute);
 
 module.exports = app;
