@@ -6,8 +6,8 @@ export default defineNuxtConfig({
         target: 'http://localhost:5000',
         changeOrigin: true,
         prependPath: false,
-      }
-    }
+      },
+    },
   },
-  modules: ['@nuxtjs/tailwindcss']
+  modules: ['@nuxtjs/tailwindcss', '@nuxt/icon'],
 })

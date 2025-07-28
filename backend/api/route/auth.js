@@ -52,6 +52,7 @@ router.post('/login', async (req, res) => {
       maxAge: 4 * 60 * 60 * 1000,
     });
     res.json({ message: 'Login successful', role: user.role.toLowerCase() });
+    return rows[0];
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: 'Server error', error: error.message });
@@ -69,5 +70,6 @@ router.get('/profile', authenticateToken, async (req, res) => {
   if (rows.length === 0) return res.status(404).json({ message: 'User not found' });
   res.json(rows[0]);
 });
+
 
 module.exports = router;
