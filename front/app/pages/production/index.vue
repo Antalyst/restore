@@ -1,7 +1,6 @@
 <template>
     <div>
-        hello
-        <button @click="logout">Logout</button>
+       
     </div>
 </template>
 
@@ -30,5 +29,9 @@ async function logout() {
     await navigateTo('/admin/login')
   }
 }
+
+definePageMeta({
+  layout:"admin"
+})
 
 </script>

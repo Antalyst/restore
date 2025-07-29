@@ -1,5 +1,5 @@
 <template>
-  <div class="min-h-screen bg-gray-100">
+  <div >
     
   </div>
 </template>
@@ -7,15 +7,15 @@
 <script setup>
 const user = ref(null)
 
-// onMounted(async () => {
-//   try {
-//     user.value = await $fetch('http://localhost:5000/api/auth/profile', {
-//       credentials: 'include',
-//     })
-//   } catch (error) {
-//     console.error('Failed to fetch user profile:', error)
-//   }
-// })
+onMounted(async () => {
+  try {
+    user.value = await $fetch('http://localhost:5000/api/auth/profile', {
+      credentials: 'include',
+    })
+  } catch (error) {
+    console.error('Failed to fetch user profile:', error)
+  }
+})
 
 async function logout() {
   try {
