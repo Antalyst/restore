@@ -33,7 +33,8 @@ CREATE TABLE `items` (
   `category` enum('raw material','finished goods','packaging') NOT NULL,
   `unit_of_measurement` varchar(50) NOT NULL,
   `min_stock_level` int(11) NOT NULL,
-  `max_stock_level` int(11) NOT NULL
+  `max_stock_level` int(11) NOT NULL,
+  `image_path` varchar(255) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------

@@ -7,11 +7,11 @@
 
       <div class="flex-1">
         <aside class=" flex flex-col space-y-2 text-md">
-          <nuxt-link to="/admin/dashboard" class="p-2 pl-4 pr-16 text-md  rounded-r-full "> Dashboard</nuxt-link>
-          <nuxt-link to="/admin/products" class="p-2 pl-4 pr-16 text-md  rounded-r-full "> <icon name="mdi:admin-generic" class="" /> Products</nuxt-link>
-          <nuxt-link to="/admin/categories" class="p-2 pl-4 pr-16 text-md  "> <icon name="mdi:category" class="" /> Categories</nuxt-link>
-          <nuxt-link to="/admin/orders" class="p-2 pl-4 pr-16 text-md  "> <icon name="mdi:admin-post" class="" /> Orders</nuxt-link>
-          <nuxt-link to="/admin/users" class="p-2 pl-4 pr-16 text-md  "> Users</nuxt-link>
+          <nuxt-link to="/admin/dashboard" class="p-2 pl-4 text-md  rounded-r-full "> Dashboard</nuxt-link>
+          <nuxt-link to="/admin/products" class="p-2 pl-4  text-md  rounded-r-full "> <icon name="mdi:admin-generic" class="" />Add Supply</nuxt-link>
+          <nuxt-link to="/admin/adjustSupply" class="p-2 pl-4  text-md rounded-r-full"> <icon name="mdi:category"  /> <h1>Adjust Supply</h1></nuxt-link>
+          <nuxt-link to="/admin/orders" class="p-2 pl-4  text-md  "> <icon name="mdi:admin-post"  /> Orders</nuxt-link>
+          <nuxt-link to="/admin/users" class="p-2 pl-4 text-md  "> Users</nuxt-link>
         </aside>
       </div>
       <div class="">
@@ -50,20 +50,34 @@ async function logout() {
 
 <style>
 .router-link-active {
-  border: 1px solid  #00796b;
+  position: relative;
+  border: 1px solid #00796b;
   color: #00796b;
-
+  
 }
-.router-link-active::before{
+
+.router-link-active::before {
   content: "";
   position: absolute;
   width: 10px;
   height: 45px;
   background-color: #00796b;
-  left: 17px;
+  right: 5px; 
+  top: 50%;
+  transform: translateY(-50%);
   border-radius: 0 5px 5px 0;
-  margin: -11px 0  ;
+ animation: slideIn 0.3s forwards ease-in-out;
 }
 
+@keyframes slideIn {
+  from {
+    left: -12px;
+    opacity: 0;
+  }
+  to {
+    left: 0;
+    opacity: 1;
+  }
+}
 
 </style>
