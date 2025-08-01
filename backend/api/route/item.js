@@ -3,8 +3,32 @@ const path = require("path");
 const router = express.Router();
 const multer = require("multer");
 const db = require("../../database/db");
+const jwt = require('jsonwebtoken');
+const cookieParser = require('cookie-parser');
+
+const JWT_SECRET = process.env.JWT_SECRET || 'secretinventory';
+
+// Authentication middleware
+function authenticateToken(req, res, next) {
+  console.log('Cookies:', req.cookies);
+  const token = req.cookies.token;
+  if (!token) {
+    console.log('No token found in cookies');
+    return res.status(401).json({ message: 'Unauthorized - No token found' });
+  }
+  jwt.verify(token, JWT_SECRET, (err, user) => {
+    if (err) {
+      console.log('Token verification failed:', err.message);
+      return res.status(403).json({ message: 'Forbidden - Invalid token' });
+    }
+    console.log('Token verified for user:', user);
+    req.user = user;
+    next();
+  });
+}
 
 router.use('/images', express.static(path.join(__dirname, '../../api-img/img')));
+router.use('/attachments', express.static(path.join(__dirname, '../../api-img/attachment')));
 
 const storage = multer.diskStorage({
   destination: path.join(__dirname, '../../api-img/img'),
@@ -13,6 +37,15 @@ const storage = multer.diskStorage({
   }
 });
 const upload = multer({ storage });
+
+// Separate storage for attachments
+const attachmentStorage = multer.diskStorage({
+  destination: path.join(__dirname, '../../api-img/attachment'),
+  filename: (req, file, cb) => {
+    cb(null, `attachment_${Date.now()}${path.extname(file.originalname)}`);
+  }
+});
+const attachmentUpload = multer({ storage: attachmentStorage });
 
 router.post("/add", upload.single('image'), async (req, res) => {
   try {
@@ -124,11 +157,10 @@ router.put("/update/:id", upload.single('image'), async (req, res) => {
   }
 });
 
-// Search items
 router.post("/search", async (req, res) => {
   try {
     const { query } = req.body;
-    
+
     if (!query || query.length < 2) {
       return res.status(400).json({ success: false, message: "Search query must be at least 2 characters" });
     }
@@ -145,13 +177,14 @@ router.post("/search", async (req, res) => {
   }
 });
 
-router.put("/adjust/:id", async (req, res) => {
+router.put("/adjust/:id", authenticateToken, attachmentUpload.single('attachment'), async (req, res) => {
   try {
     const itemId = req.params.id;
-    const { type, quantity, notes } = req.body;
+    const { type, quantity, remarks, date } = req.body;
+    const userId = req.user.id; // Get user ID from JWT token
 
-    if (!type || !quantity || !notes) {
-      return res.status(400).json({ success: false, message: "Type, quantity, and notes are required" });
+    if (!type || !quantity || !remarks) {
+      return res.status(400).json({ success: false, message: "Type, quantity, and remarks are required" });
     }
 
     const [currentItem] = await db.execute(
@@ -187,7 +220,13 @@ router.put("/adjust/:id", async (req, res) => {
       [newCurrentStock, newMinStockLevel, itemId]
     );
 
-    console.log(`Stock adjustment for item ${itemId}: Type=${type}, Quantity=${quantity}, Old Stock=${item.current_stock || 0}, New Stock=${newCurrentStock}, Notes=${notes}`);
+    const attachment_path = req.file ? `http://localhost:5000/attachments/${req.file.filename}` : null;
+    await db.execute(
+      `INSERT INTO remarks(user_id, item_id, description, date, attachment) VALUES (?, ?, ?, ?, ?)`,
+      [userId, itemId, remarks, date, attachment_path]
+    );
+
+    console.log(`Stock adjustment for item ${itemId}: Type=${type}, Quantity=${quantity}, Old Stock=${item.current_stock || 0}, New Stock=${newCurrentStock}, Remarks=${remarks}`);
 
     res.status(200).json({ 
       success: true, 
@@ -196,7 +235,8 @@ router.put("/adjust/:id", async (req, res) => {
         itemId,
         type,
         quantity,
-        notes,
+        remarks,
+        userId,
         newCurrentStock,
         newMinStockLevel,
         oldStock: item.current_stock || 0

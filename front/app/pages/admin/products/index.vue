@@ -194,8 +194,8 @@
         unitOfMeasure.value = item.unit_of_measurement;
         minStockLevel.value = item.min_stock_level;
         maxStockLevel.value = item.max_stock_level;
-        image.value = null; // Reset image for editing
-        toggle.value = true; // Show the form
+        image.value = null;
+        toggle.value = true;
     };
 
     const submit = async () => {
@@ -213,7 +213,6 @@
             const url = isEditing.value 
                 ? `http://localhost:5000/api/items/update/${editingId.value}`
                 : "http://localhost:5000/api/items/add";
-            
             const method = isEditing.value ? "PUT" : "POST";
 
             const response = await fetch(url, {

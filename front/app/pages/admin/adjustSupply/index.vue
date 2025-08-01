@@ -1,8 +1,16 @@
 <template>
     <div class="bg-stone-100 w-full my-2 rounded-md p-6">
-        <!-- Search Section -->
+        
         <div class="mb-6">
-            <h2 class="text-2xl font-bold mb-4 text-gray-800">Adjust Supply</h2>
+            <div class="flex justify-between items-center mb-4">
+                <h2 class="text-2xl font-bold text-gray-800">Adjust Supply</h2>
+                <div v-if="currentUser" class="text-sm text-green-600">
+                    ✓ Logged in as: {{ currentUser.username }}
+                </div>
+                <div v-else class="text-sm text-red-600">
+                    ⚠ Not authenticated
+                </div>
+            </div>
             <div class="relative">
                 <input 
                     v-model="searchQuery" 
@@ -31,12 +39,9 @@
             </div>
         </div>
 
-        <!-- Selected Supply Form -->
         <div v-if="selectedSupply" class="bg-white rounded-lg p-6 shadow-sm">
             <h3 class="text-xl font-semibold mb-4">Adjust Stock for: {{ selectedSupply.name }}</h3>
-            
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <!-- Supply Details -->
                 <div class="space-y-4">
                     <div class="flex items-center gap-4">
                         <img v-if="selectedSupply.image_path" :src="selectedSupply.image_path" :alt="selectedSupply.name" class="w-20 h-20 object-cover rounded">
@@ -50,7 +55,7 @@
                         </div>
                     </div>
                     
-                                         <div class="grid grid-cols-3 gap-4">
+                    <div class="grid grid-cols-3 gap-4">
                          <div>
                              <label class="block text-sm font-medium text-gray-700 mb-1">Current Stock</label>
                              <input 
@@ -81,7 +86,6 @@
                      </div>
                 </div>
 
-                <!-- Adjustment Form -->
                 <div class="space-y-4">
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-1">Adjustment Type</label>
@@ -107,16 +111,25 @@
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-1">Reason/Notes</label>
                         <textarea 
-                            v-model="adjustmentForm.notes" 
+
+                            v-model="adjustmentForm.remarks" 
                             rows="3"
                             placeholder="Enter reason for adjustment..."
                             class="w-full p-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500"
                         ></textarea>
                     </div>
+
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Add Attachment</label>
+                        <input @change="fileChange" accept="image/*" type="file" name="attachment" class="outline-[#00796b] p-2">
+                        <div v-if="image" class="mt-2 text-sm text-green-600">
+                            ✓ File selected: {{ image.name }}
+                        </div>
+                    </div>
                     
                     <button 
                         @click="submitAdjustment"
-                        :disabled="!adjustmentForm.quantity || !adjustmentForm.notes"
+                        :disabled="!adjustmentForm.quantity || !adjustmentForm.remarks"
                         class="w-full bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed"
                     >
                         Submit Adjustment
@@ -125,12 +138,12 @@
             </div>
         </div>
 
-        <!-- Success Message -->
-        <div v-if="successMessage" class="mt-4 p-4 bg-green-100 border border-green-400 text-green-700 rounded">
+
+       <div v-if="successMessage" class="mt-4 p-4 bg-green-100 border border-green-400 text-green-700 rounded">
             {{ successMessage }}
         </div>
 
-        <!-- Error Message -->
+        
         <div v-if="errorMessage" class="mt-4 p-4 bg-red-100 border border-red-400 text-red-700 rounded">
             {{ errorMessage }}
         </div>
@@ -147,12 +160,35 @@ const searchResults = ref([])
 const selectedSupply = ref(null)
 const successMessage = ref('')
 const errorMessage = ref('')
+const image = ref(null);
+const currentUser = ref(null);
+
+// Check authentication status on page load
+onMounted(async () => {
+    try {
+        const user = await $fetch('http://localhost:5000/api/auth/profile', {
+            credentials: 'include'
+        });
+        currentUser.value = user;
+        console.log('Current user:', user);
+    } catch (error) {
+        console.error('Auth check failed:', error);
+        errorMessage.value = 'Authentication failed. Please log in again.';
+    }
+});
+
+function fileChange(e){
+    image.value = e.target.files[0]
+    console.log(image.value);
+}
 
 const adjustmentForm = ref({
     type: 'add',
     quantity: '',
-    notes: ''
+    remarks: '',
+    date: `${new Date().getMonth() + 1}/${new Date().getDate()}/${new Date().getFullYear()}`
 })
+
 
 const searchSupplies = async () => {
     if (searchQuery.value.length < 2) {
@@ -163,7 +199,8 @@ const searchSupplies = async () => {
     try {
         const response = await $fetch('http://localhost:5000/api/items/search', {
             method: 'POST',
-            body: { query: searchQuery.value }
+            body: { query: searchQuery.value },
+            credentials: 'include'
         })
         
         if (response.success) {
@@ -183,9 +220,20 @@ const selectSupply = (supply) => {
 
 const submitAdjustment = async () => {
     try {
+        const formData = new FormData()
+        formData.append('type', adjustmentForm.value.type)
+        formData.append('quantity', adjustmentForm.value.quantity)
+        formData.append('remarks', adjustmentForm.value.remarks)
+        formData.append('date', adjustmentForm.value.date)
+        
+        if (image.value) {
+            formData.append('attachment', image.value)
+        }
+        
         const response = await $fetch(`http://localhost:5000/api/items/adjust/${selectedSupply.value.id}`, {
             method: 'PUT',
-            body: adjustmentForm.value
+            body: formData,
+            credentials: 'include'
         })
         
         if (response.success) {
@@ -200,8 +248,9 @@ const submitAdjustment = async () => {
             adjustmentForm.value = {
                 type: 'add',
                 quantity: '',
-                notes: ''
+                remarks: ''
             }
+            image.value = null
             
             setTimeout(() => {
                 successMessage.value = ''
@@ -209,7 +258,11 @@ const submitAdjustment = async () => {
         }
     } catch (error) {
         console.error('Adjustment error:', error)
-        errorMessage.value = 'Failed to adjust supply'
+        if (error.status === 401) {
+            errorMessage.value = 'Authentication failed. Please log in again.'
+        } else {
+            errorMessage.value = 'Failed to adjust supply'
+        }
         successMessage.value = ''
     }
 }

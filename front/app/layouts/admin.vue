@@ -8,8 +8,13 @@
       <div class="flex-1">
         <aside class=" flex flex-col space-y-2 text-md">
           <nuxt-link to="/admin/dashboard" class="p-2 pl-4 text-md  rounded-r-full "> Dashboard</nuxt-link>
-          <nuxt-link to="/admin/products" class="p-2 pl-4  text-md  rounded-r-full "> <icon name="mdi:admin-generic" class="" />Add Supply</nuxt-link>
-          <nuxt-link to="/admin/adjustSupply" class="p-2 pl-4  text-md rounded-r-full"> <icon name="mdi:category"  /> <h1>Adjust Supply</h1></nuxt-link>
+          <nuxt-link to="/admin/products" class="p-2 pl-4  text-md  rounded-r-full "> <icon name="material-symbols:dashboard-2-outline" class="" />Add Supply</nuxt-link>
+          <div class=" flex flex-col">
+           <nuxt-link to="/admin/adjustSupply" class="p-2 pl-4  text-md rounded-r-full"> <icon name="mdi:category"  /> <h1>Adjust Supply</h1></nuxt-link>
+           <div class="ml-5 py-2 m-2 border-l-2 border-[#00796b] w-[160px]">
+            <nuxt-link to="/admin/adjustlogs" class="p-2 pl-4  text-sm rounded-r-full ">Adjust Logs</nuxt-link>
+           </div>
+          </div>
           <nuxt-link to="/admin/orders" class="p-2 pl-4  text-md  "> <icon name="mdi:admin-post"  /> Orders</nuxt-link>
           <nuxt-link to="/admin/users" class="p-2 pl-4 text-md  "> Users</nuxt-link>
         </aside>
@@ -53,6 +58,7 @@ async function logout() {
   position: relative;
   border: 1px solid #00796b;
   color: #00796b;
+  width: 100%;
   
 }
 

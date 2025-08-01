@@ -10,4 +10,9 @@ export default defineNuxtConfig({
     },
   },
   modules: ['@nuxtjs/tailwindcss', '@nuxt/icon'],
+  runtimeConfig: {
+    public: {
+      apiBase: 'http://localhost:5000'
+    }
+  }
 })

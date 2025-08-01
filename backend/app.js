@@ -6,7 +6,7 @@ const app = express();
 const path = require('path');
 
 app.use('/images', express.static(path.join(__dirname, 'api-img/img')));
-
+app.use('/images', express.static(path.join(__dirname, 'api-img/attachment')));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
@@ -16,10 +16,11 @@ app.use(cors({
 }));
 const itemRoutes = require('./api/route/item');
 const authRoutes = require('./api/route/auth');
+const remarksRoutes = require('./api/route/remarks');
 
 app.use('/api/items', itemRoutes);
 app.use('/api/auth', authRoutes);
-
+app.use('/api/remarks', remarksRoutes);
 
 
 module.exports = app;
