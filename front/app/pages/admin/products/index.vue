@@ -1,10 +1,10 @@
 <template>
     <div class="bg-stone-100 w-full mr-2 my-2 rounded-md p-2">
-        <h1 class="text-2xl font-bold text-[#00796b] ">Product</h1>
+        <h1 class="text-2xl font-bold text-[#00796b]">Product</h1>
         <div class="gap-2">
-            <div class="text-2xl font-bold text-[#00796b] " @click="toggle = !toggle"><h1 class="flex w-full justify-end px-4">Add Item</h1> </div>
+            <div class="text-2xl font-bold text-[#00796b]" @click="toggle = !toggle"><h1 class="flex w-full justify-end px-4">Add Item</h1></div>
             <form @submit.prevent="submit" :class="{'hidden': !toggle}" class="grid grid-cols-2 gap-2">
-                <div class="shadow-md p-2 rounded-md ">
+                <div class="shadow-md p-2 rounded-md">
                     <div class="grid grid-cols-1">
                         <label class="text-lg font-semibold text-[#00796b]" for="productName">Product Name</label>
                         <input v-model="productName" type="text" name="productName" class="outline-[#00796b] p-2">
@@ -14,42 +14,53 @@
                         <label for="Category" class="font-semibold text-lg text-[#00796b]">Category</label>
                         <select v-model="category" name="Category" class="outline-[#00796b] p-2 bg-white border border-gray-300 rounded-md focus:ring-2 focus:ring-[#00796b] focus:border-[#00796b]">
                             <option value="" disabled>Select a category</option>
-                            <option value="raw material">Raw Material</option>
-                            <option value="finished goods">Finished Goods</option>
-                            <option value="packaging">Packaging</option>
+                            <option v-for="cat in categories" :key="cat.id" :value="cat.id">
+                                {{ cat.name }}
+                            </option>
                         </select>
                     </div>
 
                 </div>
-                <div class="shadow-md p-2 rounded-md ">
+                <div class="shadow-md p-2 rounded-md">
                     <div class="grid grid-cols-1">
                         <label class="text-lg font-semibold text-[#00796b]" for="unitOfMeasurement">Unit Of Measurement</label>
-                        <input v-model="unitOfMeasure" type="text" name="unitOfMeasurement" class="outline-[#00796b] p-2">
+                        <select v-model="unitId" name="unitOfMeasurement" class="outline-[#00796b] p-2 bg-white border border-gray-300 rounded-md focus:ring-2 focus:ring-[#00796b] focus:border-[#00796b]">
+                            <option value="" disabled>Select a Unit</option>
+                            <option v-for="cat in allUnits" :key="cat.id" :value="cat.id">
+                                {{ cat.name }}
+                            </option>
+                        </select>
                     </div>
 
+                    <div class="grid grid-cols-1">
+                        <label class="text-lg font-semibold text-[#00796b]" for="currentStock">Current Stock</label>
+                        <input v-model="currentStock" type="number" name="currentStock" class="outline-[#00796b] p-2">
+                    </div>
+                </div>
+                <div class="shadow-md p-2 rounded-md">
                     <div class="grid grid-cols-1">
                         <label class="text-lg font-semibold text-[#00796b]" for="minimumStockLevel">Minimum Stock Level</label>
                         <input v-model="minStockLevel" type="number" name="minimumStockLevel" class="outline-[#00796b] p-2">
                     </div>
-                </div>
-                <div class="shadow-md p-2 rounded-md ">
+
                     <div class="grid grid-cols-1">
                         <label class="text-lg font-semibold text-[#00796b]" for="maximumStockLevel">Maximum Stock Level</label>
                         <input v-model="maxStockLevel" type="number" name="maximumStockLevel" class="outline-[#00796b] p-2">
                     </div>
-
+                </div>
+                <div class="shadow-md p-2 rounded-md">
                     <div class="grid grid-cols-1">
-                        <label class="text-lg font-semibold text-[#00796b]" for="Imagepath">Select Image </label>
+                        <label class="text-lg font-semibold text-[#00796b]" for="Imagepath">Select Image</label>
                         <input @change="fileChange" accept="image/*" type="file" name="image" class="outline-[#00796b] p-2">
                     </div>
-                </div>
-                <div class="flex justify-center items-center gap-4">
-                    <button type="submit" class="px-8 py-2 border-2 border-[#00796b] rounded-md text-[#00796b] text-lg font-bold">
-                        {{ isEditing ? 'Update Product' : 'Add Item' }}
-                    </button>
-                    <button @click="cancelForm" type="button" class="px-8 py-2 border-2 border-gray-400 rounded-md text-gray-600 text-lg font-bold">
-                        {{ isEditing ? 'Cancel Edit' : 'Cancel Add' }}
-                    </button>
+                    <div class="flex justify-center items-center gap-4 mt-4">
+                        <button type="submit" class="px-8 py-2 border-2 border-[#00796b] rounded-md text-[#00796b] text-lg font-bold">
+                            {{ isEditing ? 'Update Product' : 'Add Item' }}
+                        </button>
+                        <button @click="cancelForm" type="button" class="px-8 py-2 border-2 border-gray-400 rounded-md text-gray-600 text-lg font-bold">
+                            {{ isEditing ? 'Cancel Edit' : 'Cancel Add' }}
+                        </button>
+                    </div>
                 </div>
             </form>
         </div>
@@ -60,13 +71,13 @@
                 </div>
                 <div class="px-6 py-4 border-b border-gray-200 bg-gray-50">
                     <div class="flex items-center justify-between">
-                        <div class="flex items-center space-x-4">
-                            <label class="text-sm font-medium text-[#00796b]">Filter by Category:</label>
-                            <select v-model="selectedFilter" @change="filterItems" class="px-3 py-2 border border-gray-300 rounded-md text-sm focus:ring-2 focus:ring-[#00796b] focus:border-[#00796b] bg-white">
-                                <option value="">All Categories</option>
-                                <option value="raw material">Raw Material</option>
-                                <option value="finished goods">Finished Goods</option>
-                                <option value="packaging">Packaging</option>
+                        <div class="grid grid-cols-1">
+                            <label for="Category" class="font-semibold text-lg text-[#00796b]">Category</label>
+                            <select v-model="selectedFilter" name="Category" class="outline-[#00796b] p-2 bg-white border border-gray-300 rounded-md focus:ring-2 focus:ring-[#00796b] focus:border-[#00796b]">
+                                <option value="" disabled>Select a category</option>
+                                <option v-for="cat in categories" :key="cat.id" :value="cat.name">
+                                    {{ cat.name }}
+                                </option>
                             </select>
                         </div>
                         <div class="text-sm text-gray-600">
@@ -82,6 +93,7 @@
                                 <th class="px-6 py-3 text-left text-xs font-medium text-[#00796b] uppercase tracking-wider">Product Name</th>
                                 <th class="px-6 py-3 text-left text-xs font-medium text-[#00796b] uppercase tracking-wider">Category</th>
                                 <th class="px-6 py-3 text-left text-xs font-medium text-[#00796b] uppercase tracking-wider">Unit of Measurement</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-[#00796b] uppercase tracking-wider">Current Stock</th>
                                 <th class="px-6 py-3 text-left text-xs font-medium text-[#00796b] uppercase tracking-wider">Min Stock</th>
                                 <th class="px-6 py-3 text-left text-xs font-medium text-[#00796b] uppercase tracking-wider">Max Stock</th>
                                 <th class="px-6 py-3 text-left text-xs font-medium text-[#00796b] uppercase tracking-wider">Actions</th>
@@ -101,13 +113,16 @@
                                     <div class="text-sm font-medium text-gray-900">{{ item.name }}</div>
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap">
-                                    <div class="text-sm text-gray-900">{{ item.category }}</div>
+                                    <div class="text-sm text-gray-900">{{ item.category_name }}</div>
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap">
-                                    <div class="text-sm text-gray-900">{{ item.unit_of_measurement }}</div>
+                                    <div class="text-sm text-gray-900">{{ item.unit_name }}</div>
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap">
-                                    <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full" 
+                                    <div class="text-sm text-gray-900">{{ item.current_stock }}</div>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full"
                                           :class="item.min_stock_level <= 10 ? 'bg-red-100 text-red-800' : 'bg-green-100 text-green-800'">
                                         {{ item.min_stock_level }}
                                     </span>
@@ -145,9 +160,10 @@
 <script setup>
     const productName = ref("");
     const category = ref("");
-    const unitOfMeasure = ref("");
+    const unitId = ref(0);
     const minStockLevel = ref(0);
     const maxStockLevel = ref(0);
+    const currentStock = ref(0);
     const image = ref(null);
     const items = ref([]);
     const filteredItems = ref([]);
@@ -155,19 +171,24 @@
     const toggle = ref(false);
     const isEditing = ref(false);
     const editingId = ref(null);
+    const categories = ref([]);
+    const allUnits = ref([])
 
-    const categories = [
-        { value: "raw material", label: "Raw Material" },
-        { value: "finished goods", label: "Finished Goods" },
-        { value: "packaging", label: "Packaging" }
-    ];
+
+
+    watch(selectedFilter, () => {
+        filterItems();
+    });
+
+    watch(unitId,(nev)=>{
+        console.log(nev);
+    })
+
     const filterItems = () => {
         if (!selectedFilter.value) {
             filteredItems.value = items.value;
         } else {
-            filteredItems.value = items.value.filter(item => 
-                item.category.toLowerCase() === selectedFilter.value.toLowerCase()
-            );
+            filteredItems.value = items.value.filter(item => item.category === selectedFilter.value);
         }
     };
 
@@ -177,21 +198,26 @@
         });
         const result = await response.json();
         items.value = result.result;
-        filteredItems.value = items.value; // Initialize filtered items
+        filteredItems.value = items.value;
         console.log(items.value);
+
+        categories.value = await $fetch(`http://localhost:5000/api/category/get`);
+        allUnits.value = await $fetch(`http://localhost:5000/api/units/get`);
+        console.log(allUnits.value);
+        console.log(categories.value);
     });
 
     function fileChange(e){
-        image.value = e.target.files[0]
-        console.log(image.value);
+        image.value = e.target.files[0];
     }
 
     const editItem = (item) => {
         isEditing.value = true;
         editingId.value = item.id;
         productName.value = item.name;
-        category.value = item.category;
-        unitOfMeasure.value = item.unit_of_measurement;
+        category.value = item.category_id;
+        unitId.value = item.unit_of_measurement;
+        currentStock.value = item.current_stock;
         minStockLevel.value = item.min_stock_level;
         maxStockLevel.value = item.max_stock_level;
         image.value = null;
@@ -202,8 +228,9 @@
         try {
             const formData = new FormData();
             formData.append("name", productName.value);
-            formData.append("category", category.value);
-            formData.append("unit_of_measurement", unitOfMeasure.value);
+            formData.append("category_id", category.value);
+            formData.append("current_stock", currentStock.value);
+            formData.append("unit_id", unitId.value);
             formData.append("min_stock_level", minStockLevel.value);
             formData.append("max_stock_level", maxStockLevel.value);
             if (image.value) {
@@ -225,7 +252,6 @@
             console.log("Server Response:", result);
             
             if (result.success) {
-
                 const refreshResponse = await fetch("http://localhost:5000/api/items/get", {
                     method: "GET",
                 });
@@ -239,25 +265,27 @@
             console.error("Submit error:", e);
         }
     };
+    
     function reset(){
-        productName.value = ""
-        category.value = ""
-        unitOfMeasure.value = ""
-        minStockLevel.value = 0
-        maxStockLevel.value = 0
-        image.value = null
-        isEditing.value = false
-        editingId.value = null
+        productName.value = "";
+        category.value = "";
+        unitId.value = "";
+        currentStock.value = 0;
+        minStockLevel.value = 0;
+        maxStockLevel.value = 0;
+        image.value = null;
+        isEditing.value = false;
+        editingId.value = null;
     }
 
     const cancelForm = () => {
         reset();
-        toggle.value = false; // Hide the form
+        toggle.value = false;
     };
 
     definePageMeta({
         layout: 'admin',
-    })
+    });
 </script>
 
 <style lang="scss" scoped>

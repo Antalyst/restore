@@ -16,6 +16,7 @@
            </div>
           </div>
           <nuxt-link to="/admin/orders" class="p-2 pl-4  text-md  "> <icon name="mdi:admin-post"  /> Orders</nuxt-link>
+          <nuxt-link to="/admin/settings" class="p-2 pl-4  text-md  "> <icon name="mdi:admin-post"  /> Settings</nuxt-link>
           <nuxt-link to="/admin/users" class="p-2 pl-4 text-md  "> Users</nuxt-link>
         </aside>
       </div>

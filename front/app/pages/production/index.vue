@@ -1,6 +1,6 @@
 <template>
     <div>
-       
+       <button @click="logout">Log Out</button>
     </div>
 </template>
 
@@ -30,8 +30,5 @@ async function logout() {
   }
 }
 
-definePageMeta({
-  layout:"admin"
-})
 
 </script>
