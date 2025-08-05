@@ -44,7 +44,7 @@ const addCategory = async () => {
 
 const addUnit = async () => {
   try {
-    const response = await $fetch('http://localhost:5000/api/catefory/add', {
+    const response = await $fetch('http://localhost:5000/api/units/add', {
       method: 'POST',
       body: { name: unitName.value },
       credentials: 'include',

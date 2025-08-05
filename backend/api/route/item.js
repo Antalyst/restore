@@ -236,7 +236,7 @@ router.put("/adjust/:id", authenticateToken, attachmentUpload.single('attachment
                 remarks,
                 userId,
                 newCurrentStock,
-                newMinStockLevel: item.min_stock_level, // Keep min stock level the same
+                newMinStockLevel: item.min_stock_level,
                 oldStock
             }
         });
@@ -246,4 +246,99 @@ router.put("/adjust/:id", authenticateToken, attachmentUpload.single('attachment
     }
 });
 
+router.post("/get/items", async (req, res, next) => {
+  try {
+    const { name } = req.body;
+    if (!name) {
+      return res.status(400).json({ error: "Name is required" });
+    }
+
+    const [rows] = await db.execute(
+      `SELECT * FROM items WHERE name = ?`,
+      [name]
+    );
+
+    return res.json(rows);
+  } catch (e) {
+    console.error("DB Error:", e.message);
+    return res.status(500).json({ error: "Internal server error" });
+  }
+});
+
+
+router.put("/update", async (req, res) => {
+    try {
+        const [rows] = await db.execute(`Update items set current_stock = ? where name = ?`,[req.body.stock,req.body.name]);
+        res.json(rows);
+    } catch (e) {
+        res.status(500).json({ success: false, message: e.message });
+    }
+});
+
+router.post("/stage_one", async (req, res) => {
+    try {
+        const sql = `
+            INSERT INTO stage_one(sugar, bilog, gala, sacks, reject_bilog, reject_gala, total_produce)
+            VALUES(?, ?, ?, ?, ?, ?, ?)
+        `;
+        const [rows] = await db.execute(sql, [
+            req.body.sugar, 
+            req.body.bilog, 
+            req.body.gala, 
+            req.body.sacks, 
+            req.body.reject_bilog, 
+            req.body.reject_gala, 
+            req.body.total_produce
+        ]);
+        res.json(rows);
+    } catch (e) {
+        res.status(500).json({ success: false, message: e.message });
+    }
+});
+router.get("/get/stage_one", async (req, res) => {
+    try {
+        const [rows] = await db.execute(`SELECT * FROM stage_one`);
+        res.json(rows);
+    } catch (e) {
+        res.status(500).json({ success: false, message: e.message });
+    }
+});
+
+router.put("/stage_one/update", async (req, res) => {
+    try {
+        const sql = `
+            UPDATE stage_one
+            SET sacks = ?, reject_bilog = ?, reject_gala = ?, total_produce = ?
+            WHERE id = ?
+        `;
+        const [rows] = await db.execute(sql, [
+            req.body.sacks, 
+            req.body.reject_bilog, 
+            req.body.reject_gala, 
+            req.body.total_produce,
+            req.body.id
+        ]);
+        res.json(rows);
+    } catch (e) {
+        res.status(500).json({ success: false, message: e.message });
+    }
+});
+
+router.put("/update/production", async (req, res) => {
+    try {
+        const sql = `
+            UPDATE items
+            SET sacks = ?, bilog = ?,
+            WHERE id = ?
+        `;
+        const [rows] = await db.execute(sql, [
+            req.body.sacks, 
+            req.body.bilog, 
+            req.body.id
+        ]);
+        res.json(rows);
+    } catch (e) {
+        res.status(500).json({ success: false, message: e.message });
+    }
+});
 module.exports = router;

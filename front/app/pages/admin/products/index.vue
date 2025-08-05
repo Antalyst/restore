@@ -32,10 +32,7 @@
                         </select>
                     </div>
 
-                    <div class="grid grid-cols-1">
-                        <label class="text-lg font-semibold text-[#00796b]" for="currentStock">Current Stock</label>
-                        <input v-model="currentStock" type="number" name="currentStock" class="outline-[#00796b] p-2">
-                    </div>
+                   
                 </div>
                 <div class="shadow-md p-2 rounded-md">
                     <div class="grid grid-cols-1">
