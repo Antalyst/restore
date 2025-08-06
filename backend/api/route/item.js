@@ -324,21 +324,5 @@ router.put("/stage_one/update", async (req, res) => {
     }
 });
 
-router.put("/update/production", async (req, res) => {
-    try {
-        const sql = `
-            UPDATE items
-            SET sacks = ?, bilog = ?,
-            WHERE id = ?
-        `;
-        const [rows] = await db.execute(sql, [
-            req.body.sacks, 
-            req.body.bilog, 
-            req.body.id
-        ]);
-        res.json(rows);
-    } catch (e) {
-        res.status(500).json({ success: false, message: e.message });
-    }
-});
+
 module.exports = router;

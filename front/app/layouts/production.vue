@@ -2,7 +2,7 @@
   <div class="min-h-screen  flex gap-1">
     <header class=" p-4 flex flex-col gap-2 bg-stone-100 m-2 rounded-md border-l-none ">
       <div>
-          <img src="/logo/logo.png" alt="Logo" class="w-28 mr-8  my-4 ">
+        <h1 class="text-teal-800 text-center text-3xl font-bold pb-4" >SSSE</h1>
       </div>
 
       <div class="flex-1">

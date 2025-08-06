@@ -1,300 +1,289 @@
 <template>
-  <div class="p-2">
-    <form @submit.prevent="submitForm" class="space-y-4">
-      <div class="p-4 bg-gray-100 rounded-lg shadow-sm">
-        <label for="sugar-input" class="block text-sm font-medium text-gray-700">Sugar</label>
-        <h1 class="text-2xl font-bold text-blue-600 my-2">Total Stock: {{ sugarStock.length > 0 ? sugarStock[0].current_stock : 'Loading...' }}</h1>
-        <input 
-          type="number" 
-          id="sugar-input" 
-          v-model.number="sugar" 
-          class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm p-2"
-        />
-      </div>
-
-      <div class="p-4 bg-gray-100 rounded-lg shadow-sm">
-        <label for="bilog-input" class="block text-sm font-medium text-gray-700">Bilog</label>
-        <h1 class="text-2xl font-bold text-blue-600 my-2">Total Stock: {{ bilogStock.length > 0 ? bilogStock[0].current_stock : 'Loading...' }}</h1>
-        <input 
-          type="number" 
-          id="bilog-input" 
-          v-model.number="bilog" 
-          class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm p-2"
-        />
-      </div>
-
-      <div class="p-4 bg-gray-100 rounded-lg shadow-sm">
-        <label for="gala-input" class="block text-sm font-medium text-gray-700">Gala</label>
-        <h1 class="text-2xl font-bold text-blue-600 my-2">Total Stock: {{ galaStock.length > 0 ? galaStock[0].current_stock : 'Loading...' }}</h1>
-        <input 
-          type="number" 
-          id="gala-input" 
-          v-model.number="galagala" 
-          class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm p-2"
-        />
-      </div>
-
-      <button 
-        type="submit" 
-        class="w-full bg-blue-600 text-white font-bold py-2 px-4 rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
-      >
-        Submit
-      </button>
-    </form>
-    
-    <div class="mt-8">
-      <h2 class="text-xl font-bold text-gray-800 mb-4">Stage One Production History</h2>
-      <div v-if="stageOneData.length > 0" class="overflow-x-auto">
-        <table class="min-w-full divide-y divide-gray-200">
-          <thead class="bg-gray-50">
+  <div class="p-2 bg-gray-100 w-full">
+    <main class="flex">
+      <section class="border-2 w-full h-screen p-2 ">
+        <h1 class="text-xl font-bold mb-2 ">Production</h1>
+        <form @submit.prevent="submit">
+          <div class="mb-2">
+            <select v-model="selecteProduce" class="outline-none px-2 border-teal-800 border-2 rounded">
+              <option disabled class="text-gray-200" value="">Select Macuvado </option>
+              <option 
+                class="" 
+                :value="produces.name" 
+                v-for="produces in produce" 
+                :key="produces.name" 
+              >
+                {{ produces.name }}
+              </option>
+            </select>
+          </div>
+          <div>
+            <div class="border w-full p-2 grid grid-cols-1">
+              <label class="w-full py-1 text-xl border-b-2 mb-2 border-teal-800 text-teal-800 font-semibold " for="sugar" >Sugar</label>
+              <div class="flex gap-2 text-md items-center">
+                <h1>Kg</h1><input type="number" v-model="sugar" class="border-teal-800 rounded border"></input>
+              </div>
+            </div>
+            <div class="border w-full p-2 grid grid-cols-1">
+              <label class="w-full py-1 text-xl border-b-2 mb-2 border-teal-800 text-teal-800 font-semibold " for="molasis" >Molasis</label>
+              <div class="flex gap-2 text-md items-center">
+                <h1>Kg</h1><input type="number" v-model="molasis" class="border-teal-800 rounded border"></input>
+              </div>
+            </div>
+            <div class="border w-full p-2 grid grid-cols-1">
+              <label class="w-full py-1 text-xl border-b-2 mb-2 border-teal-800 text-teal-800 font-semibold " for="total-bilog ">Total Bilog</label>
+              <div class="grid grid-cols-2 gap-2">
+                <div class="w-full">
+                  <div>Bilog</div>
+                  <div class="flex gap-2 text-md items-center">
+                    <h1>Kg</h1><input type="number" v-model="bilog" class="w-full border-teal-800 rounded border" ></input>
+                  </div>
+                </div>
+                <div class="w-full">
+                  <div>Gala-Gala</div>
+                  <div class="flex gap-2 text-md items-center">
+                    <h1>Kg</h1><input type="number" v-model="gala" class="w-full border-teal-800 rounded border" ></input>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="border w-full p-2 grid grid-cols-1">
+              <label class="w-full py-1 text-xl border-b-2 mb-2 border-teal-800 text-teal-800 font-semibold " for="apog" >Apog</label>
+              <div class="flex gap-2 text-md items-center">
+                <h1>Tbps</h1><input type="number" v-model="apog" class="border-teal-800 rounded border">
+              </div>
+            </div>
+            <div class="mb-2">
+              <select v-model="selectedClient" class="outline-none px-2 border-teal-800 border-2 rounded">
+                <option disabled class="text-gray-200" value="">Select client </option>
+                <option 
+                  class="" 
+                  :value="produces.name" 
+                  v-for="produces in client" 
+                  :key="produces.name" 
+                >
+                  {{ produces.name }}
+                </option>
+              </select>
+            </div>
+            <button type="submit" class="p-2 text-md font-semibold text-teal-800 border-teal-800 border text-center w-full rounded my-2">Submit</button>
+          </div>
+        </form>
+      </section>
+      <section class="border-2 w-full h-screen p-2">
+        <h1 class="text-xl font-bold mb-2">Current Stage 1 Production</h1>
+        
+        <table class="w-full text-sm text-left text-gray-500 ">
+          <thead class="text-xs  uppercase bg-teal-600 text-white ">
             <tr>
-              <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ID</th>
-              <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Sugar</th>
-              <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Bilog</th>
-              <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Gala</th>
-              <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Sacks</th>
-              <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Reject Bilog</th>
-              <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Reject Gala</th>
-              <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Total Produce</th>
-              <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Action</th>
+              <th scope="col" class="px-6 py-3">Client</th>
+              <th scope="col" class="px-6 py-3">Produce</th>
+              <th scope="col" class="px-6 py-3">Sugar (Kg)</th>
+              <th scope="col" class="px-6 py-3">Bilog (Kg)</th>
+              <th scope="col" class="px-6 py-3">Gala (Kg)</th>
+              <th scope="col" class="px-6 py-3">Date</th>
+              <th scope="col" class="px-6 py-3">Action</th>
             </tr>
           </thead>
-          <tbody class="bg-white divide-y divide-gray-200">
-            <tr v-for="item in stageOneData" :key="item.id">
-              <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{{ item.id }}</td>
-              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ item.sugar }}</td>
-              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ item.bilog }}</td>
-              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ item.gala }}</td>
-              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ item.sacks }}</td>
-              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ item.reject_bilog }}</td>
-              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ item.reject_gala }}</td>
-              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ item.total_produce }}</td>
-              <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                <button @click="startEdit(item)" class="text-indigo-600 hover:text-indigo-900">Edit</button>
+          <tbody>
+            <tr v-for="entry in stageOne" :key="entry.id" class=" border-b  dark:border-gray-700">
+              <td class="px-6 py-4">{{ entry.client }}</td>
+              <td class="px-6 py-4">{{ entry.produce }}</td>
+              <td class="px-6 py-4">{{ entry.sugar }}</td>
+              <td class="px-6 py-4">{{ entry.bilog }}</td>
+              <td class="px-6 py-4">{{ entry.gala }}</td>
+              <td class="px-6 py-4">{{ entry.date }}</td>
+              <td class="px-6 py-4">
+                <button @click="openModal(entry)" class="font-medium text-teal-600 dark:text-teal-500 hover:underline">Edit</button>
               </td>
             </tr>
           </tbody>
         </table>
-      </div>
-      <div v-else class="text-center text-gray-500 py-4">
-        No production history available.
-      </div>
-    </div>
 
-    <div v-if="isModalOpen" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full flex items-center justify-center">
-      <div class="relative p-5 border w-96 shadow-lg rounded-md bg-white">
-        <h3 class="text-lg font-bold mb-4">Edit Production Record #{{ editingItem.id }}</h3>
-        <form @submit.prevent="saveChanges" class="space-y-4">
-          <div>
-            <label class="block text-sm font-medium text-gray-700">Sacks</label>
-            <p class="mt-1 p-2 border border-gray-300 rounded-md bg-gray-50">{{ editingItem.total_produce / 50 }}</p>
+        <div v-if="isModalOpen" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full flex items-center justify-center">
+          <div class="p-8 border w-96 shadow-lg rounded-md bg-white">
+            <h2 class="text-xl font-bold mb-4">Edit Production Entry</h2>
+            
+            <form @submit.prevent="updateEntry">
+              <div class="mb-4">
+                <label for="edit_sugar" class="block text-gray-700 text-sm font-bold mb-2">Sugar (Kg)</label>
+                <input type="number" id="edit_sugar" v-model="editingEntry.sugar" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
+              </div>
+              <div class="mb-4">
+                <label for="edit_bilog" class="block text-gray-700 text-sm font-bold mb-2">Bilog (Kg)</label>
+                <input type="number" id="edit_bilog" v-model="editingEntry.bilog" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
+              </div>
+              <div class="mb-4">
+                <label for="edit_gala" class="block text-gray-700 text-sm font-bold mb-2">Gala (Kg)</label>
+                <input type="number" id="edit_gala" v-model="editingEntry.gala" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
+              </div>
+
+              <div class="flex items-center justify-end">
+                <button type="button" @click="closeModal" class="bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline mr-2">Cancel</button>
+                <button type="submit" class="bg-teal-500 hover:bg-teal-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">Save</button>
+              </div>
+            </form>
           </div>
-          <div>
-            <label for="edit-reject-bilog" class="block text-sm font-medium text-gray-700">Reject Bilog</label>
-            <input type="number" id="edit-reject-bilog" v-model.number="editingItem.reject_bilog" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm p-2" />
-          </div>
-          <div>
-            <label for="edit-reject-gala" class="block text-sm font-medium text-gray-700">Reject Gala</label>
-            <input type="number" id="edit-reject-gala" v-model.number="editingItem.reject_gala" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm p-2" />
-          </div>
-          <div>
-            <label for="edit-total-produce" class="block text-sm font-medium text-gray-700">Total Produce</label>
-            <input type="number" id="edit-total-produce" v-model.number="editingItem.total_produce" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm p-2" />
-          </div>
-          
-          <div class="flex justify-end gap-2 mt-4">
-            <button 
-              type="button" 
-              @click="cancelEdit" 
-              class="px-4 py-2 bg-gray-200 text-gray-800 rounded-lg hover:bg-gray-300"
-            >
-              Cancel
-            </button>
-            <button 
-              type="submit" 
-              class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
-            >
-              Save Changes
-            </button>
-          </div>
-        </form>
-      </div>
-    </div>
+        </div>
+      </section>
+    </main>
   </div>
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue';
+  import { ref } from 'vue';
 
-const sugar = ref(0);
-const bilog = ref(0);
-const galagala = ref(0);
+  const selectedClient = ref("")
+  const selecteProduce = ref("");
+  const sugar = ref(0);
+  const molasis = ref(0);
+  const bilog = ref(0);
+  const gala = ref(0);
+  const apog = ref(0); 
+  const client = ref(null)
+  const sugarStock = ref(null);
+  const molasisStock = ref(null);
+  const bilogStock = ref(null);
+  const recycleSacksStock = ref(null);
+  const apogStock = ref(null); 
+  const stageOne = ref([])
 
-const sugarStock = ref([]);
-const bilogStock = ref([]);
-const galaStock = ref([]);
-const stageOneData = ref([]);
 
-const isModalOpen = ref(false);
-const editingItem = ref({});
-const originalEditingItem = ref({});
+  const produce = ref([
+    { name: "Dark Mascuvado" },
+    { name: "Light Mascuvado" },
+    { name: "Brown Mascuvado" }
+  ]);
 
-const fetchData = async (itemName, stockRef) => {
+  const submit = async () => {
+    try{
+      await updateItems ("sugar", (sugarStock.value - sugar.value))
+      await updateItems ("bilog", (bilogStock.value - (bilog.value + gala.value )))
+      await updateItems ("molasis", (molasisStock.value - molasis.value))
+      await updateItems ("rsacks", (apogStock.value - apog.value))
+
+      await insertStageOne(
+        selectedClient.value, 
+        selecteProduce.value,
+        sugar.value,
+        bilog.value,
+        gala.value,
+      )
+
+      fetchStageOne()
+
+    }catch(e){
+      console.log(e);
+    }
+  }
+
+  const insertStageOne  = async(client, produce, sugar, bilog, gala)=>{
+    try{
+      await $fetch(`http://localhost:5000/api/stageone/add`,{
+        method:"POST",
+        body:{
+          client:client,
+          produce:produce,
+          sugar:sugar,
+          bilog:bilog,
+          gala:gala,
+          recycle_sacks:0,
+          reject_bilog:0,
+          total_produce:0,
+          date:`${new Date().getMonth() + 1}/${new Date().getDate()}/${new Date().getFullYear()}`
+        }
+      })
+    }catch(e){
+      console.log(e);
+    }
+  }
+
+  const fetchStageOne= async() => {
+    try{
+      stageOne.value = await $fetch(`http://localhost:5000/api/stageone/get`)
+      console.log(stageOne.value);
+    }catch(e){
+      console.log(e);
+    }
+  }
+
+const fetchItems = async (itemName) => {
   try {
     const response = await $fetch(`http://localhost:5000/api/items/get/items`, {
-      method: "post",
+      method: "POST",
       body: {
-        name: itemName
-      }
+        name: itemName,
+      },
     });
-    if (Array.isArray(response) && response.length > 0) {
-      stockRef.value = response;
-    } else {
-      console.warn(`No data found for item: ${itemName}`);
+
+    return response; 
+  } catch (e) {
+    console.error("Failed to fetch item:", e);
+    return null;
+  }
+};
+
+  const fetchClient = async()=>{
+    try{
+      client.value = await $fetch(`http://localhost:5000/api/client/get`);
+      console.log(client.value)
+    }catch(e){
+      console.log(e);
     }
-  } catch (e) {
-    console.error(`Failed to fetch ${itemName} stock:`, e);
   }
-};
 
-const fetchStageOneData = async () => {
-  try {
-    const response = await $fetch(`http://localhost:5000/api/items/get/stage_one`);
-    if (Array.isArray(response)) {
-      stageOneData.value = response;
-    } else {
-      console.warn(`No data found for stage_one`);
+  const updateItems = async(itemName, stock)=>{
+    try{
+      await $fetch(`http://localhost:5000/api/items/update`,{
+        method:"PUT",
+        body:{
+          name:itemName,
+          stock:stock
+        }
+      })
+    }catch(e){
+      console.log(e)
     }
-  } catch (e) {
-    console.error("Failed to fetch stage one data:", e);
   }
-};
-
-const updateStock = async (name, amountToChange) => {
-  try {
-    const currentStockResponse = await $fetch(`http://localhost:5000/api/items/get/items`, {
-      method: "post",
-      body: {
-        name: name
-      }
-    });
-    
-    let currentStock = 0;
-    if (Array.isArray(currentStockResponse) && currentStockResponse.length > 0) {
-      currentStock = currentStockResponse[0].current_stock;
-    }
-
-    const newStock = currentStock + amountToChange;
-    
-    const response = await $fetch(`http://localhost:5000/api/items/update`, {
-      method: "put",
-      body: {
-        stock: newStock,
-        name: name,
-      }
-    });
-    console.log(`Successfully updated ${name}:`, response);
-  } catch (e) {
-    console.error(`Error updating ${name} stock:`, e);
-  }
-};
-
-const startEdit = (item) => {
-  originalEditingItem.value = { ...item };
-  editingItem.value = { ...item };
-  isModalOpen.value = true;
-};
-
-const cancelEdit = () => {
-  isModalOpen.value = false;
-  editingItem.value = {};
-  originalEditingItem.value = {};
-};
-
-const saveChanges = async () => {
-  try {
-    const newSacks = editingItem.value.total_produce / 50;
-    const sacksDelta = newSacks - originalEditingItem.value.sacks;
-    
-    const totalRejectedDelta = (editingItem.value.reject_bilog + editingItem.value.reject_gala) - 
-                               (originalEditingItem.value.reject_bilog + originalEditingItem.value.reject_gala);
-
-    editingItem.value.sacks = newSacks;
-
-    const response = await $fetch(`http://localhost:5000/api/items/stage_one/update`, {
-      method: "put",
-      body: editingItem.value,
-    });
-    console.log("Successfully updated stage_one record:", response);
-
-    await updateStock('Sacks', -sacksDelta);
-    await updateStock('Bilog', totalRejectedDelta);
-    
-    cancelEdit();
-    await fetchStageOneData();
-  } catch (e) {
-    console.error("Error saving changes:", e);
-  } finally {
-    await fetchData('Sugar', sugarStock);
-    await fetchData('Bilog', bilogStock);
-    await fetchData('GalaGala', galaStock);
-    await fetchStageOneData();
-  }
-};
 
 onMounted(async () => {
-  await fetchData('Sugar', sugarStock);
-  await fetchData('Bilog', bilogStock);
-  await fetchData('GalaGala', galaStock);
-  await fetchStageOneData();
-});
+  fetchClient();
 
-const submitForm = async () => {
-  try {
-    const updatePromises = [];
-
-    if (sugar.value > 0) {
-      updatePromises.push(updateStock('Sugar', -sugar.value));
-    }
-    if (bilog.value > 0) {
-      updatePromises.push(updateStock('Bilog', -bilog.value));
-    }
-    if (galagala.value > 0) {
-      updatePromises.push(updateStock('GalaGala', -galagala.value));
-    }
-    
-    await Promise.all(updatePromises);
-
-    await $fetch(`http://localhost:5000/api/items/stage_one`, {
-      method: "post",
-      body: {
-        sugar: sugar.value,
-        bilog: bilog.value,
-        gala: galagala.value,
-        sacks: 0,
-        reject_bilog: 0,
-        reject_gala: 0,
-        total_produce: 0
-      }
-    });
-
-    console.log("Form submitted and data processed successfully!");
-
-  } catch (e) {
-    console.error("An error occurred during form submission:", e);
-  } finally {
-    await fetchData('Sugar', sugarStock);
-    await fetchData('Bilog', bilogStock);
-    await fetchData('GalaGala', galaStock);
-    await fetchStageOneData();
-    
-    sugar.value = 0;
-    bilog.value = 0;
-    galagala.value = 0;
+  const sugarData = await fetchItems("sugar");
+  if (sugarData && sugarData.length > 0) {
+    sugarStock.value = sugarData[0].current_stock;
   }
-};
+  
+  const molasisData = await fetchItems("molasis");
+  if (molasisData && molasisData.length > 0) {
+    molasisStock.value = molasisData[0].current_stock;
+  }
+  
+  const sacksData = await fetchItems("rsacks");
+  if (sacksData && sacksData.length > 0) {
+    recycleSacksStock.value = sacksData[0].current_stock;
+  }
+  
+  const bilogData = await fetchItems("bilog");
+  if (bilogData && bilogData.length > 0) {
+    bilogStock.value = bilogData[0].current_stock;
+  }
 
-definePageMeta({
-  layout: "production"
+  const apogData = await fetchItems("apog");
+  if (apogData && apogData.length > 0) {
+    apogStock.value = apogData[0].current_stock;
+  }
+
+  fetchStageOne()
+
+  console.log('Sugar stock:', sugarStock.value); 
+  console.log('Molasis stock:', molasisStock.value);
+  console.log('Sacks stock:', recycleSacksStock.value); 
+  console.log('Bilog stock:', bilogStock.value);
+  console.log('apog stock:', apogStock.value);
 });
+
+  definePageMeta({
+    layout: "production"
+  });
 </script>
