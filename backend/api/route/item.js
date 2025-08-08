@@ -275,6 +275,35 @@ router.put("/update", async (req, res) => {
     }
 });
 
+// Adjust stock atomically by name using a delta (can be positive or negative)
+router.put("/update-delta", async (req, res) => {
+    try {
+        const { name, delta } = req.body;
+        if (!name || delta === undefined || delta === null) {
+            return res.status(400).json({ success: false, message: "name and delta are required" });
+        }
+
+        const numericDelta = Number(delta);
+        if (!Number.isFinite(numericDelta)) {
+            return res.status(400).json({ success: false, message: "delta must be a finite number" });
+        }
+
+        await db.execute(
+            `UPDATE items SET current_stock = GREATEST(current_stock + ?, 0) WHERE name = ?`,
+            [numericDelta, name]
+        );
+
+        const [rows] = await db.execute(
+            `SELECT current_stock FROM items WHERE name = ? LIMIT 1`,
+            [name]
+        );
+
+        return res.status(200).json({ success: true, current_stock: rows?.[0]?.current_stock ?? null });
+    } catch (e) {
+        res.status(500).json({ success: false, message: e.message });
+    }
+});
+
 router.post("/stage_one", async (req, res) => {
     try {
         const sql = `

@@ -53,18 +53,34 @@
                 <h1>Tbps</h1><input type="number" v-model="apog" class="border-teal-800 rounded border outline-blue-500 p-1">
               </div>
             </div>
-            <div class="mb-2">
-              <select v-model="selectedClient" class="outline-none px-2 border-teal-800 border-2 rounded">
-                <option disabled class="text-gray-200" value="">Select client </option>
-                <option 
-                  class="" 
-                  :value="produces.name" 
-                  v-for="produces in client" 
-                  :key="produces.name" 
-                >
-                  {{ produces.name }}
-                </option>
-              </select>
+
+            <div class="flex gap-2 w-full">
+              <div class="mb-2">
+                <select v-model="selectedClient" class="outline-none px-2 border-teal-800 border-2 rounded">
+                  <option disabled class="text-gray-200" value="">Select client </option>
+                  <option 
+                    class="" 
+                    :value="produces.name" 
+                    v-for="produces in client" 
+                    :key="produces.name" 
+                  >
+                    {{ produces.name }}
+                  </option>
+                </select>
+              </div>
+              <div class="mb-2">
+                <select v-model="selectedLeader" class="outline-none px-2 border-teal-800 border-2 rounded">
+                  <option disabled class="text-gray-200" value="">Select Group Leader</option>
+                  <option 
+                    class="" 
+                    :value="produces.id" 
+                    v-for="produces in gl" 
+                    :key="produces.name" 
+                  >
+                    {{ produces.name }}
+                  </option>
+                </select>
+              </div>
             </div>
             <button type="submit" class="p-2 text-md font-semibold text-teal-800 border-teal-800 border text-center w-full rounded my-2">Submit</button>
           </div>
@@ -75,8 +91,10 @@
         <table class="w-full text-sm text-left text-gray-500 ">
           <thead class="text-xs  uppercase bg-teal-600 text-white ">
             <tr>
+              <th scope="col" class="px-6 py-3">Production Code</th>
               <th scope="col" class="px-6 py-3">Client</th>
               <th scope="col" class="px-6 py-3">Producing</th>
+              <th scope="col" class="px-6 py-3">group Leader</th>
               <th scope="col" class="px-6 py-3">Sugar (Kg)</th>
               <th scope="col" class="px-6 py-3">Bilog (Kg)</th>
               <th scope="col" class="px-6 py-3">Gala (Kg)</th>
@@ -86,9 +104,11 @@
             </tr>
           </thead>
           <tbody>
-            <tr v-for="entry in stageOne" :key="entry.id" class=" border-b  dark:border-gray-700">
+            <tr v-for="entry in stageOne" :key="entry.stage_one_id" class=" border-b  dark:border-gray-700">
+              <td class="px-6 py-4">{{ entry.production_code }}</td>
               <td class="px-6 py-4">{{ entry.client }}</td>
               <td class="px-6 py-4">{{ entry.produce }}</td>
+              <td class="px-6 py-4">{{ entry.name }}</td>
               <td class="px-6 py-4">{{ entry.sugar }}</td>
               <td class="px-6 py-4">{{ entry.bilog }}</td>
               <td class="px-6 py-4">{{ entry.gala }}</td>
@@ -106,8 +126,10 @@
         <table class="w-full text-sm text-left text-gray-500 ">
           <thead class="text-xs  uppercase bg-pink-600 text-white ">
             <tr>
+              <th scope="col" class="px-6 py-3">Production Code</th>
               <th scope="col" class="px-6 py-3">Client</th>
               <th scope="col" class="px-6 py-3">Producing</th>
+              <th scope="col" class="px-6 py-3">Group Leader</th>
               <th scope="col" class="px-6 py-3">Final Produced</th>
               <th scope="col" class="px-6 py-3">Gala (Kg)</th>
               <th scope="col" class="px-6 py-3">Saks (Pcs)</th>
@@ -118,7 +140,9 @@
           </thead>
           <tbody>
             <tr v-for="entry in stageTwo" :key="entry.id" class=" border-b  dark:border-gray-700">
+              <td class="px-6 py-4">{{ entry.production_code }}</td>
               <td class="px-6 py-4">{{ entry.client }}</td>
+              <td class="px-6 py-4">{{ entry.group_leader }}</td>
               <td class="px-6 py-4">{{ entry.produce }}</td>
               <td class="px-6 py-4">{{ entry.produced }}</td>
               <td class="px-6 py-4">{{ entry.bilog }}</td>
@@ -174,8 +198,6 @@
                 <input type="number" id="edit_bilog" v-model="rejectedBilog" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
               </div>
               <div class="mb-4">
-                <label for="edit_gala" class="block text-gray-700 text-sm font-bold mb-2">Sacks pcs to use</label>
-                <h1>{{ rSacksused  }}</h1>
               </div>
 
               <div class="flex items-center justify-between">
@@ -191,7 +213,7 @@
   </div>
 </template>
 <script setup>
-  import { ref, computed, onMounted } from 'vue';
+  import { ref, computed, onMounted, watch } from 'vue';
 
   const selectedClient = ref("")
   const selecteProduce = ref("");
@@ -209,8 +231,9 @@
   const apogStock = ref(null); 
   const stageOne = ref([])
   const isModalOpen = ref(false);
-    const isModalOpenStageTwo = ref(false);
-
+  const isModalOpenStageTwo = ref(false);
+  const selectedLeader = ref("")
+  const gl = ref([]);
 
   const stageOneId = ref(null)
   const stageTwoId = ref(null)
@@ -219,6 +242,34 @@
   const totalProduced = ref(0);
   const stageTwo = ref([])
 
+const resetValues = () => {
+  sugar.value = 0;
+  molasis.value = 0;
+  bilog.value = 0;
+  gala.value = 0;
+  apog.value = 0;
+  sacks.value = 0;
+  selectedClient.value = "";
+  selectedLeader.value= "";
+  selecteProduce.value = "";
+  rejectedBilog.value=0;
+};
+
+
+const fetchgl = async () =>{
+  try{
+    gl.value = await $fetch(`http://localhost:5000/api/groupleaders/get`);
+    console.log(gl.value);
+  }catch(e){
+    console.log(e);
+    
+  }
+}
+
+watch(selectedLeader, (val)=>{
+  console.log(val);
+  
+})
 
   const produce = ref([
     { name: "Dark Mascuvado" },
@@ -260,8 +311,7 @@ const sacksused = computed(() => {
     return Math.round(calculatedSacks);
   });
 
-
-  const updateStageTwoEntry = async () => {
+  const updateStageTwoEntry = async () => {
     try {
       await $fetch(`http://localhost:5000/api/stagetwo/update/${stageTwoId.value.id}`, {
         method: "PUT",
@@ -272,8 +322,8 @@ const sacksused = computed(() => {
       },
       });
 
-      await updateItems("bilog", bilogStock.value + rejectedBilog.value);
-      await updateItems("sacks", sacks.value - sacksused.value);
+      await updateItemsDelta("bilog", rejectedBilog.value);
+      await updateItemsDelta("sacks", -sacksused.value);
       closeModalStageTwo();
       fetchStageTwo();
     } catch (e) {
@@ -281,10 +331,9 @@ const sacksused = computed(() => {
     }
   };
 
-
-  const updateEntry = async () => {
+  const updateEntry = async () => {
     try {
-      await $fetch(`http://localhost:5000/api/stageone/update/${stageOneId.value.id}`, {
+        await $fetch(`http://localhost:5000/api/stageone/update/${stageOneId.value.stage_one_id}`, {
         method: "PUT",
         body:{
           recycle_sacks: rSacksused.value,
@@ -296,18 +345,15 @@ const sacksused = computed(() => {
       await $fetch(`http://localhost:5000/api/stagetwo/add`, {
         method: "POST",
         body:{
-          stage_one_id:stageOneId.value.id,
-          bilog:0,
-          produced:0,
-          sacks:0,
-          status_session:"processing",
-          date:`${new Date().getMonth() + 1}/${new Date().getDate()}/${new Date().getFullYear()}`
+            stage_one_id: stageOneId.value.stage_one_id,
+            group_leader: stageOneId.value.name,
+            status_session:"processing"
         },
       });
 
 
-      await updateItems("bilog", bilogStock.value + rejectedBilog.value);
-      await updateItems("rsacks", recycleSacksStock.value - rSacksused.value);
+      await updateItemsDelta("bilog", rejectedBilog.value);
+      await updateItemsDelta("rsacks", -rSacksused.value);
       closeModal();
       fetchStageOne();
       fetchStageTwo();
@@ -316,13 +362,12 @@ const sacksused = computed(() => {
     }
   };
 
-
   const submit = async () => {
     try{
-      await updateItems ("sugar", (sugarStock.value - sugar.value))
-      await updateItems ("bilog", (bilogStock.value - (bilog.value + gala.value )))
-      await updateItems ("molasis", (molasisStock.value - molasis.value))
-      await updateItems ("apog", (apogStock.value - apog.value))
+      await updateItemsDelta ("sugar", -sugar.value)
+      await updateItemsDelta ("bilog", -(bilog.value + gala.value))
+      await updateItemsDelta ("molasis", -molasis.value)
+      await updateItemsDelta ("apog", -apog.value)
       await insertStageOne(
         selectedClient.value, 
         selecteProduce.value,
@@ -330,7 +375,7 @@ const sacksused = computed(() => {
         bilog.value,
         gala.value,
       )
-
+      resetValues();
       fetchStageOne()
 
     }catch(e){
@@ -338,12 +383,13 @@ const sacksused = computed(() => {
     }
   }
 
-  const insertStageOne  = async(client, produce, sugar, bilog, gala)=>{
+  const insertStageOne  = async(client, produce, sugar, bilog, gala)=>{
     try{
       await $fetch(`http://localhost:5000/api/stageone/add`,{
         method:"POST",
         body:{
           client:client,
+          group_leader_id: selectedLeader.value,
           produce:produce,
           sugar:sugar,
           bilog:bilog,
@@ -416,8 +462,23 @@ const sacksused = computed(() => {
     }
   }
 
+  const updateItemsDelta = async(itemName, delta)=>{
+    try{
+      await $fetch(`http://localhost:5000/api/items/update-delta`,{
+        method:"PUT",
+        body:{
+          name:itemName,
+          delta:delta
+        }
+      })
+    }catch(e){
+      console.log(e)
+    }
+  }
+
   onMounted(async () => {
     fetchClient();
+    fetchgl();
 
     const sugarData = await fetchItems("sugar");
     if (sugarData && sugarData.length > 0) {
