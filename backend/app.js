@@ -25,6 +25,8 @@ const clientRoutes = require('./api/route/client');
 const stageOneRoutes = require('./api/route/stageOne');
 const stageTwoRoutes = require('./api/route/stageTwo');
 const groupLeadersRoutes = require('./api/route/groupLeaders');
+const groupCodeRoutes = require('./api/route/groupCode');
+const failedRoutes = require('./api/route/failed');
 
 app.use('/api/items', itemRoutes);
 app.use('/api/auth', authRoutes);
@@ -35,5 +37,9 @@ app.use('/api/client', clientRoutes);
 app.use('/api/stageone', stageOneRoutes);
 app.use('/api/stagetwo', stageTwoRoutes);
 app.use('/api/groupleaders', groupLeadersRoutes);
+app.use('/api/groupcode', groupCodeRoutes);
+app.use('/api/failedb ', failedRoutes);
+
+
 
 module.exports = app;

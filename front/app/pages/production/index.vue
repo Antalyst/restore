@@ -2,10 +2,11 @@
   <div class="p-2 bg-gray-100 w-full">
     <main class="flex">
       <section class="border-2 w-full h-screen p-2 ">
-        <h1 class="text-xl font-bold mb-2 ">Production</h1>
+        <h1 class="text-xl font-bold mb-2 text-teal-700">Production</h1>
         <form @submit.prevent="submit">
+        
           <div class="mb-2">
-            <select v-model="selecteProduce" class="outline-none px-2 border-teal-800 border-2 rounded">
+            <select v-model="selecteProduce" required class="outline-none px-2 border-teal-700 border-2 rounded focus:outline-none focus:ring-2 focus:ring-teal-700">
               <option disabled class="text-gray-200" value="">Select Macuvado </option>
               <option 
                 class="" 
@@ -19,44 +20,48 @@
           </div>
           <div>
             <div class="border w-full p-2 grid grid-cols-1">
-              <label class="w-full py-1 text-xl border-b-2 mb-2 border-teal-800 text-teal-800 font-semibold " for="sugar" >Sugar</label>
+              <label class="w-full py-1 text-xl border-b-2 mb-2 border-teal-700 text-teal-700 font-semibold " for="sugar" >Sugar</label>
               <div class="flex gap-2 text-md items-center">
-                <h1>Kg</h1><input type="number" v-model="sugar" class="border-teal-800 rounded border outline-blue-500 p-1"></input>
+                <h1>Kg</h1><input type="number" min="0" required v-model.number="sugar" class="border-teal-700 rounded border focus:outline-none focus:ring-2 focus:ring-teal-700 p-1"></input>
               </div>
+              <div v-if="sugarWarning" class="text-red-600 text-xs mt-1">{{ sugarWarning }}</div>
             </div>
             <div class="border w-full p-2 grid grid-cols-1">
-              <label class="w-full py-1 text-xl border-b-2 mb-2 border-teal-800 text-teal-800 font-semibold " for="molasis" >Molasis</label>
+              <label class="w-full py-1 text-xl border-b-2 mb-2 border-teal-700 text-teal-700 font-semibold " for="molasis" >Molasis</label>
               <div class="flex gap-2 text-md items-center">
-                <h1>Kg</h1><input type="number" v-model="molasis" class="border-teal-800 rounded border outline-blue-500 p-1"></input>
+                <h1>Kg</h1><input type="number" min="0" required v-model.number="molasis" class="border-teal-700 rounded border focus:outline-none focus:ring-2 focus:ring-teal-700 p-1"></input>
               </div>
+              <div v-if="molasisWarning" class="text-red-600 text-xs mt-1">{{ molasisWarning }}</div>
             </div>
             <div class="border w-full p-2 grid grid-cols-1">
-              <label class="w-full py-1 text-xl border-b-2 mb-2 border-teal-800 text-teal-800 font-semibold " for="total-bilog ">Total Bilog</label>
+              <label class="w-full py-1 text-xl border-b-2 mb-2 border-teal-700 text-teal-700 font-semibold " for="total-bilog ">Total Bilog</label>
               <div class="grid grid-cols-2 gap-2">
                 <div class="w-full">
                   <div>Bilog</div>
                   <div class="flex gap-2 text-md items-center">
-                    <h1>Kg</h1><input type="number" v-model="bilog" class="w-full border-teal-800 rounded border outline-blue-500 p-1" ></input>
+                    <h1>Kg</h1><input type="number" min="0" required v-model.number="bilog" class="w-full border-teal-700 rounded border focus:outline-none focus:ring-2 focus:ring-teal-700 p-1" ></input>
                   </div>
                 </div>
                 <div class="w-full">
                   <div>Gala-Gala</div>
                   <div class="flex gap-2 text-md items-center">
-                    <h1>Kg</h1><input type="number" v-model="gala" class="w-full border-teal-800 rounded border outline-blue-500 p-1" ></input>
+                    <h1>Kg</h1><input type="number" min="0" required v-model.number="gala" class="w-full border-teal-700 rounded border focus:outline-none focus:ring-2 focus:ring-teal-700 p-1" ></input>
                   </div>
                 </div>
               </div>
+              <div v-if="bilogWarning" class="text-red-600 text-xs mt-1">{{ bilogWarning }}</div>
             </div>
             <div class="border w-full p-2 grid grid-cols-1">
-              <label class="w-full py-1 text-xl border-b-2 mb-2 border-teal-800 text-teal-800 font-semibold " for="apog" >Apog</label>
+              <label class="w-full py-1 text-xl border-b-2 mb-2 border-teal-700 text-teal-700 font-semibold " for="apog" >Apog</label>
               <div class="flex gap-2 text-md items-center">
-                <h1>Tbps</h1><input type="number" v-model="apog" class="border-teal-800 rounded border outline-blue-500 p-1">
+                <h1>Tbps</h1><input type="number" min="0" required v-model.number="apog" class="border-teal-700 rounded border focus:outline-none focus:ring-2 focus:ring-teal-700 p-1">
               </div>
+              <div v-if="apogWarning" class="text-red-600 text-xs mt-1">{{ apogWarning }}</div>
             </div>
 
             <div class="flex gap-2 w-full">
               <div class="mb-2">
-                <select v-model="selectedClient" class="outline-none px-2 border-teal-800 border-2 rounded">
+                <select v-model="selectedClient" required class="outline-none px-2 border-teal-700 border-2 rounded focus:outline-none focus:ring-2 focus:ring-teal-700">
                   <option disabled class="text-gray-200" value="">Select client </option>
                   <option 
                     class="" 
@@ -69,7 +74,7 @@
                 </select>
               </div>
               <div class="mb-2">
-                <select v-model="selectedLeader" class="outline-none px-2 border-teal-800 border-2 rounded">
+                <select v-model="selectedLeader" required class="outline-none px-2 border-teal-700 border-2 rounded focus:outline-none focus:ring-2 focus:ring-teal-700">
                   <option disabled class="text-gray-200" value="">Select Group Leader</option>
                   <option 
                     class="" 
@@ -82,14 +87,14 @@
                 </select>
               </div>
             </div>
-            <button type="submit" class="p-2 text-md font-semibold text-teal-800 border-teal-800 border text-center w-full rounded my-2">Submit</button>
+            <button type="submit" :disabled="!isFormValid" class="p-2 text-md font-semibold text-white bg-teal-700 hover:bg-teal-800 disabled:opacity-50 disabled:cursor-not-allowed text-center w-full rounded my-2">Submit</button>
           </div>
         </form>
       </section>
       <section class="border-2 w-full h-screen p-2">
-        <h1 class="text-xl font-bold mb-2">Current Stage 1 Production</h1>
+        <h1 class="text-xl font-bold mb-2 text-teal-700">Current Stage 1 Production</h1>
         <table class="w-full text-sm text-left text-gray-500 ">
-          <thead class="text-xs  uppercase bg-teal-600 text-white ">
+          <thead class="text-xs  uppercase bg-teal-700 text-white ">
             <tr>
               <th scope="col" class="px-6 py-3">Production Code</th>
               <th scope="col" class="px-6 py-3">Client</th>
@@ -121,17 +126,19 @@
           </tbody>
         </table>
 
-        <section class="border-2 w-full h-screen ">
-        <h1 class="text-xl font-bold mb-2">Current Stage 2 Production</h1>
-        <table class="w-full text-sm text-left text-gray-500 ">
-          <thead class="text-xs  uppercase bg-pink-600 text-white ">
+         <section class="border-2 w-full max-h-[700px] overflow-y-auto">
+        <h1 class="text-xl font-bold mb-2 text-teal-700">Current Stage 2 Production</h1>
+          <table class="w-full text-xs text-left text-gray-500 ">
+            <thead class="text-xs uppercase bg-lime-700 text-white sticky top-0 z-10">
             <tr>
               <th scope="col" class="px-6 py-3">Production Code</th>
               <th scope="col" class="px-6 py-3">Client</th>
               <th scope="col" class="px-6 py-3">Producing</th>
               <th scope="col" class="px-6 py-3">Group Leader</th>
-              <th scope="col" class="px-6 py-3">Final Produced</th>
-              <th scope="col" class="px-6 py-3">Gala (Kg)</th>
+              <th scope="col" class="px-6 py-3">Stage 1 Produced (Kg)</th>
+              <th scope="col" class="px-6 py-3">Stage 1 Bilog (Kg)</th>
+              <th scope="col" class="px-6 py-3">Final Produced (Kg)</th>
+              <th scope="col" class="px-6 py-3">Stage 2 Bilog (Kg)</th>
               <th scope="col" class="px-6 py-3">Saks (Pcs)</th>
               <th scope="col" class="px-6 py-3">Date</th>
               <th scope="col" class="px-6 py-3">Status</th>
@@ -142,8 +149,10 @@
             <tr v-for="entry in stageTwo" :key="entry.id" class=" border-b  dark:border-gray-700">
               <td class="px-6 py-4">{{ entry.production_code }}</td>
               <td class="px-6 py-4">{{ entry.client }}</td>
-              <td class="px-6 py-4">{{ entry.group_leader }}</td>
               <td class="px-6 py-4">{{ entry.produce }}</td>
+              <td class="px-6 py-4">{{ entry.group_leader }}</td>
+              <td class="px-6 py-4">{{ entry.total_produce }}</td>
+              <td class="px-6 py-4">{{ entry.stage1bilog }}</td>
               <td class="px-6 py-4">{{ entry.produced }}</td>
               <td class="px-6 py-4">{{ entry.bilog }}</td>
               <td class="px-6 py-4">{{ entry.sacks }}</td>
@@ -158,17 +167,17 @@
         </table>
 
         <div v-if="isModalOpenStageTwo" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full flex items-center justify-center">
-          <div class="p-8 border w-96 shadow-lg rounded-md bg-white">
+          <div class="p-8 border-t-4 border-teal-700 w-96 shadow-lg rounded-md bg-white">
             <h2 class="text-xl font-bold mb-4">Production produced 2</h2>
             
             <form @submit.prevent="updateStageTwoEntry">
               <div class="mb-4">
-                <label for="edit_sugar" class="block text-gray-700 text-sm font-bold mb-2">Produce (Kg)</label>
-                <input type="number" id="edit_sugar" v-model="totalProduced" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
+                <label for="edit_sugar" class="block text-teal-700 text-sm font-bold mb-2">Produce (Kg)</label>
+                <input type="number" min="0" required id="edit_sugar" v-model.number="totalProduced" class="shadow appearance-none border border-teal-700 rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:ring-2 focus:ring-teal-700">
               </div>
               <div class="mb-4">
-                <label for="edit_bilog" class="block text-gray-700 text-sm font-bold mb-2">Bilog (Kg)</label>
-                <input type="number" id="edit_bilog" v-model="rejectedBilog" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
+                <label for="edit_bilog" class="block text-teal-700 text-sm font-bold mb-2">Bilog (Kg)</label>
+                <input type="number" min="0" required id="edit_bilog" v-model.number="rejectedBilog" class="shadow appearance-none border border-teal-700 rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:ring-2 focus:ring-teal-700">
               </div>
               <div class="mb-4">
                 <label for="edit_gala" class="block text-gray-700 text-sm font-bold mb-2">Sacks pcs to use</label>
@@ -176,34 +185,34 @@
               </div>
 
               <div class="flex items-center justify-between">
-                <button type="button" @click="closeModalStageTwo" class="bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline ">Cancel</button>
-                <button type="submit" class="bg-red-500  text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">Failed</button>
-                <button type="submit" class="bg-teal-500 hover:bg-teal-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">Save</button>
+                <button type="button" @click="closeModalStageTwo" class="border border-teal-700 text-teal-700 hover:bg-teal-50 font-bold py-2 px-4 rounded focus:outline-none">Cancel</button>
+                <button type="submit" class="bg-red-500  text-white font-bold py-2 px-4 rounded focus:outline-none">Failed</button>
+                <button type="submit" class="bg-teal-700 hover:bg-teal-800 text-white font-bold py-2 px-4 rounded focus:outline-none">Save</button>
               </div>
             </form>
           </div>
         </div>
       </section>
         <div v-if="isModalOpen" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full flex items-center justify-center">
-          <div class="p-8 border w-96 shadow-lg rounded-md bg-white">
+          <div class="p-8 border-t-4 border-teal-700 w-96 shadow-lg rounded-md bg-white">
             <h2 class="text-xl font-bold mb-4">Production produced</h2>
             
             <form @submit.prevent="updateEntry">
               <div class="mb-4">
-                <label for="edit_sugar" class="block text-gray-700 text-sm font-bold mb-2">Produce (Kg)</label>
-                <input type="number" id="edit_sugar" v-model="totalProduced" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
+                <label for="edit_sugar" class="block text-teal-700 text-sm font-bold mb-2">Produce (Kg)</label>
+                <input type="number" min="0" required id="edit_sugar" v-model.number="totalProduced" class="shadow appearance-none border border-teal-700 rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:ring-2 focus:ring-teal-700">
               </div>
               <div class="mb-4">
-                <label for="edit_bilog" class="block text-gray-700 text-sm font-bold mb-2">Bilog (Kg)</label>
-                <input type="number" id="edit_bilog" v-model="rejectedBilog" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
+                <label for="edit_bilog" class="block text-teal-700 text-sm font-bold mb-2">Bilog (Kg)</label>
+                <input type="number" min="0" required id="edit_bilog" v-model.number="rejectedBilog" class="shadow appearance-none border border-teal-700 rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:ring-2 focus:ring-teal-700">
               </div>
               <div class="mb-4">
               </div>
 
               <div class="flex items-center justify-between">
-                <button type="button" @click="closeModal" class="bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline ">Cancel</button>
-                <!-- <button type="submit" class="bg-red-500  text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">Failed</button> -->
-                <button type="submit" class="bg-teal-500 hover:bg-teal-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">Save</button>
+                <button type="button" @click="closeModal" class="border border-teal-700 text-teal-700 hover:bg-teal-50 font-bold py-2 px-4 rounded focus:outline-none ">Cancel</button>
+                <button type="submit" class="bg-red-500  text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">Failed</button>
+                <button type="submit" class="bg-teal-700 hover:bg-teal-800 text-white font-bold py-2 px-4 rounded focus:outline-none">Save</button>
               </div>
             </form>
           </div>
@@ -215,7 +224,7 @@
 <script setup>
   import { ref, computed, onMounted, watch } from 'vue';
 
-  const selectedClient = ref("")
+  const selectedClient = ref("")
   const selecteProduce = ref("");
   const sugar = ref(0);
   const molasis = ref(0);
@@ -223,16 +232,21 @@
   const gala = ref(0);
   const apog = ref(0); 
   const sacks = ref(0); 
-  const client = ref(null)
-  const sugarStock = ref(null);
-  const molasisStock = ref(null);
-  const bilogStock = ref(null);
-  const recycleSacksStock = ref(null);
-  const apogStock = ref(null); 
+  const client = ref(null)
+  const sugarStock = ref(null);
+  const molasisStock = ref(null);
+  const bilogStock = ref(null);
+  const recycleSacksStock = ref(null);
+  const apogStock = ref(null); 
+  const sugarMin = ref(0);
+  const molasisMin = ref(0);
+  const bilogMin = ref(0);
+  const apogMin = ref(0);
   const stageOne = ref([])
   const isModalOpen = ref(false);
   const isModalOpenStageTwo = ref(false);
   const selectedLeader = ref("")
+  const failedRemarks = ref(false);
   const gl = ref([]);
 
   const stageOneId = ref(null)
@@ -241,6 +255,8 @@
 
   const totalProduced = ref(0);
   const stageTwo = ref([])
+
+
 
 const resetValues = () => {
   sugar.value = 0;
@@ -255,6 +271,19 @@ const resetValues = () => {
   rejectedBilog.value=0;
 };
 
+const  addFailed  =  async()=>{
+  try{
+    await $fetch(`http://localhost:5000/api/failed/get/add`,{
+      methods:"POST",
+      body:{
+        stageOneId:stageTwoId.value
+      }
+    })
+  }catch(e){
+    console.log(e);
+    
+  }
+}
 
 const fetchgl = async () =>{
   try{
@@ -311,6 +340,52 @@ const sacksused = computed(() => {
     return Math.round(calculatedSacks);
   });
 
+  const isFormValid = computed(() => {
+    const hasClient = !!selectedClient.value;
+    const hasLeader = !!selectedLeader.value;
+    const hasProduct = !!selecteProduce.value;
+    const sugarValid = Number(sugar.value) >= 0;
+    const molasisValid = Number(molasis.value) >= 0;
+    const bilogValid = Number(bilog.value) >= 0;
+    const galaValid = Number(gala.value) >= 0;
+    const apogValid = Number(apog.value) >= 0;
+    const stockOk = !sugarWarning.value && !molasisWarning.value && !bilogWarning.value && !apogWarning.value;
+    return (
+      hasClient && hasLeader && hasProduct &&
+      sugarValid && molasisValid && bilogValid && galaValid && apogValid && stockOk
+    );
+  });
+
+  const sugarWarning = computed(() => {
+    if (sugarStock.value == null) return "";
+    const next = Number(sugarStock.value) - Number(sugar.value || 0);
+    if (next < 0) return "Sugar stock insufficient.";
+    if (next < Number(sugarMin.value || 0)) return `Sugar would drop below minimum (${sugarMin.value}).`;
+    return "";
+  });
+  const molasisWarning = computed(() => {
+    if (molasisStock.value == null) return "";
+    const next = Number(molasisStock.value) - Number(molasis.value || 0);
+    if (next < 0) return "Molasis stock insufficient.";
+    if (next < Number(molasisMin.value || 0)) return `Molasis would drop below minimum (${molasisMin.value}).`;
+    return "";
+  });
+  const bilogWarning = computed(() => {
+    if (bilogStock.value == null) return "";
+    const consume = Number(bilog.value || 0) + Number(gala.value || 0);
+    const next = Number(bilogStock.value) - consume;
+    if (next < 0) return "Bilog/Gala stock insufficient.";
+    if (next < Number(bilogMin.value || 0)) return `Bilog would drop below minimum (${bilogMin.value}).`;
+    return "";
+  });
+  const apogWarning = computed(() => {
+    if (apogStock.value == null) return "";
+    const next = Number(apogStock.value) - Number(apog.value || 0);
+    if (next < 0) return "Apog stock insufficient.";
+    if (next < Number(apogMin.value || 0)) return `Apog would drop below minimum (${apogMin.value}).`;
+    return "";
+  });
+
   const updateStageTwoEntry = async () => {
     try {
       await $fetch(`http://localhost:5000/api/stagetwo/update/${stageTwoId.value.id}`, {
@@ -364,6 +439,10 @@ const sacksused = computed(() => {
 
   const submit = async () => {
     try{
+      if (!isFormValid.value) {
+        alert('Please complete all required fields.');
+        return;
+      }
       await updateItemsDelta ("sugar", -sugar.value)
       await updateItemsDelta ("bilog", -(bilog.value + gala.value))
       await updateItemsDelta ("molasis", -molasis.value)
@@ -397,7 +476,7 @@ const sacksused = computed(() => {
           recycle_sacks:0,
           reject_bilog:0,
           total_produce:0,
-          date:`${new Date().getMonth() + 1}/${new Date().getDate()}/${new Date().getFullYear()}`
+           date:`${new Date().getMonth() + 1}/${new Date().getDate()}/${new Date().getFullYear()}`,
         }
       })
     }catch(e){

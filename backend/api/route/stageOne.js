@@ -4,6 +4,14 @@ const db = require('../../database/db');
 
 router.post("/add", async (req, res) => {
     try {
+        // Validate inputs
+        const dateStr = req.body.date; // expected M/D/YYYY
+
+        if (!dateStr) {
+            return res.status(400).json({ success: false, message: "date is required (M/D/YYYY)" });
+        }
+
+        // Converts 1 -> A, 2 -> B, ... 26 -> Z, 27 -> AA, etc.
         const toLetter = (n) => {
             if (!n || n < 1) return "";
             let result = "";
@@ -16,22 +24,20 @@ router.post("/add", async (req, res) => {
             return result;
         };
 
-        const dateStr = req.body.date; // expected M/D/YYYY
-        let dayPart = "";
-        if (dateStr) {
-            const parts = String(dateStr).split("/");
-            const day = parts.length >= 2 ? parseInt(parts[1], 10) : NaN;
-            dayPart = Number.isFinite(day) ? `00${day}` : "";
-        }
-
         // Determine the Nth production for this date (1-based)
         const [countRows] = await db.execute(
             `SELECT COUNT(*) AS cnt FROM stage_one WHERE date = ?`,
             [dateStr]
         );
-        const seqNum = (countRows?.[0]?.cnt || 0) + 1;
-        const letter = toLetter(seqNum);
-        const productionCode = `${dayPart}${letter}`;
+        const existingCount = countRows?.[0]?.cnt || 0;
+
+        // Map to series: 001A..001F, 002A..002F, ... per date
+        const sequenceIndex = existingCount + 1; // 1-based
+        const numericIndex = Math.floor((sequenceIndex - 1) / 6) + 1; // 1,1,1,1,1,1,2,2,...
+        const letterIndex = ((sequenceIndex - 1) % 6) + 1; // 1..6 -> A..F
+        const numericPart = String(numericIndex).padStart(3, '0');
+        const letter = toLetter(letterIndex);
+        const productionCode = `${numericPart}${letter}`;
 
         const [rows] = await db.execute(
             `INSERT INTO stage_one (
@@ -87,7 +93,7 @@ router.put("/update/:id", async (req, res) => {
 router.get("/get", async (req, res) => {
     try {
         const [rows] = await db.execute(`
-            SELECT 
+            SELECT
                 s1.id AS stage_one_id,
                 s1.client,
                 s1.group_leader_id,
@@ -109,10 +115,10 @@ router.get("/get", async (req, res) => {
                 gl.name
             FROM stage_one s1
             LEFT JOIN group_leader gl ON s1.group_leader_id = gl.id
-            WHERE s1.status = 'processing';
+            WHERE s1.status = 'processing' ;
         `);
+
         const toLetter = (n) => {
-            // 1 -> A, 2 -> B, ... 26 -> Z, 27 -> AA
             if (!n || n < 1) return "";
             let result = "";
             let value = n;
@@ -125,17 +131,13 @@ router.get("/get", async (req, res) => {
         };
 
         const withCodes = rows.map((r) => {
-            let dayPart = "";
-            if (r.date) {
-                const parts = String(r.date).split("/");
-                const day = parts.length >= 2 ? parseInt(parts[1], 10) : NaN;
-                dayPart = Number.isFinite(day) ? `00${day}` : "";
-            }
-            if (r.production_code) {
-                return r;
-            }
-            const letter = toLetter(parseInt(r.day_sequence, 10));
-            return { ...r, production_code: `${dayPart}${letter}` };
+            if (r.production_code) return r;
+            const sequenceIndex = Number.parseInt(r.day_sequence, 10) || 1;
+            const numericIndex = Math.floor((sequenceIndex - 1) / 6) + 1;
+            const letterIndex = ((sequenceIndex - 1) % 6) + 1;
+            const numericPart = String(numericIndex).padStart(3, '0');
+            const letter = toLetter(letterIndex);
+            return { ...r, production_code: `${numericPart}${letter}` };
         });
 
         res.json(withCodes);

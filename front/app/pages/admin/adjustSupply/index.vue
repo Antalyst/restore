@@ -41,7 +41,7 @@
                     >
                         <img v-if="item.image_path" :src="item.image_path" :alt="item.name" class="w-10 h-10 object-cover rounded">
                         <div v-else class="w-10 h-10 bg-gray-200 rounded flex items-center justify-center">
-                            <icon name="mdi:image" class="text-gray-400" />
+                            <Icon name="mdi:image" class="text-gray-400" />
                         </div>
                         <div>
                             <div class="font-medium">{{ item.name }}</div>
@@ -59,7 +59,7 @@
                     <div class="flex items-center gap-4">
                         <img v-if="selectedSupply.image_path" :src="selectedSupply.image_path" :alt="selectedSupply.name" class="w-20 h-20 object-cover rounded">
                         <div v-else class="w-20 h-20 bg-gray-200 rounded flex items-center justify-center">
-                            <icon name="mdi:image" class="text-gray-400 text-2xl" />
+                            <Icon name="mdi:image" class="text-gray-400 text-2xl" />
                         </div>
                         <div>
                             <h4 class="font-semibold text-lg">{{ selectedSupply.name }}</h4>

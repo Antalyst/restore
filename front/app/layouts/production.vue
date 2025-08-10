@@ -8,11 +8,10 @@
       <div class="flex-1">
         <aside class=" flex flex-col space-y-2 text-md w-[160px]">
           <nuxt-link to="/production" class="p-2 pl-4 text-md  rounded-r-full ">Add Production</nuxt-link>
-          <nuxt-link to="/admin/products" class="p-2 pl-4  text-md  rounded-r-full "> <icon name="material-symbols:dashboard-2-outline" class="" />Add Supply</nuxt-link>
         </aside>
       </div>
       <div class="">
-        <button @click="logout" class=" text-[#00796b] px-6 py-2  border-[#00796b] border rounded-md">  <icon name="mdi:admin-users" class="" />Logout</button>
+        <button @click="logout" class=" text-[#00796b] px-6 py-2  border-[#00796b] border rounded-md">  <Icon name="mdi:logout" class="" />Logout</button>
       </div>
     </header>
     <slot />
