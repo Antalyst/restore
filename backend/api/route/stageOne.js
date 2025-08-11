@@ -24,14 +24,13 @@ router.post("/add", async (req, res) => {
             return result;
         };
 
-        // Determine the Nth production for this date (1-based)
+        // Determine the global Nth production (1-based), not per day
         const [countRows] = await db.execute(
-            `SELECT COUNT(*) AS cnt FROM stage_one WHERE date = ?`,
-            [dateStr]
+            `SELECT COUNT(*) AS cnt FROM stage_one`
         );
         const existingCount = countRows?.[0]?.cnt || 0;
 
-        // Map to series: 001A..001F, 002A..002F, ... per date
+        // Map to series: 001A..001F, 002A..002F, ... globally (no daily reset)
         const sequenceIndex = existingCount + 1; // 1-based
         const numericIndex = Math.floor((sequenceIndex - 1) / 6) + 1; // 1,1,1,1,1,1,2,2,...
         const letterIndex = ((sequenceIndex - 1) % 6) + 1; // 1..6 -> A..F
@@ -109,8 +108,8 @@ router.get("/get", async (req, res) => {
                 s1.production_code,
                 (
                     SELECT COUNT(*) FROM stage_one s2
-                    WHERE s2.date = s1.date AND s2.id <= s1.id
-                ) AS day_sequence,
+                    WHERE s2.id <= s1.id
+                ) AS global_sequence,
                 gl.id AS leader_id,
                 gl.name
             FROM stage_one s1
@@ -132,7 +131,7 @@ router.get("/get", async (req, res) => {
 
         const withCodes = rows.map((r) => {
             if (r.production_code) return r;
-            const sequenceIndex = Number.parseInt(r.day_sequence, 10) || 1;
+            const sequenceIndex = Number.parseInt(r.global_sequence, 10) || 1;
             const numericIndex = Math.floor((sequenceIndex - 1) / 6) + 1;
             const letterIndex = ((sequenceIndex - 1) % 6) + 1;
             const numericPart = String(numericIndex).padStart(3, '0');
@@ -141,6 +140,24 @@ router.get("/get", async (req, res) => {
         });
 
         res.json(withCodes);
+    } catch (e) {
+        res.status(500).json({ success: false, message: e.message });
+    }
+});
+
+// Admin update for stage_one (production_code not editable)
+router.put("/admin/update/:id", async (req, res) => {
+    try {
+        const { client, group_leader_id, produce, sugar, bilog, gala, recycle_sacks, reject_bilog, total_produce, status, date } = req.body;
+        const [rows] = await db.execute(
+            `UPDATE stage_one 
+             SET client = ?, group_leader_id = ?, produce = ?, sugar = ?, bilog = ?, gala = ?, recycle_sacks = ?, reject_bilog = ?, total_produce = ?, status = ?, date = ?
+             WHERE id = ?`,
+            [client, group_leader_id, produce, sugar, bilog, gala, recycle_sacks, reject_bilog, total_produce, status, date, req.params.id]
+        );
+        rows.affectedRows > 0
+            ? res.status(200).json({ success: true })
+            : res.status(404).json({ success: false, message: "Stage one not found" });
     } catch (e) {
         res.status(500).json({ success: false, message: e.message });
     }

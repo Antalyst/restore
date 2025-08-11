@@ -1,24 +1,34 @@
 export default defineNuxtRouteMiddleware(async (to) => {
   if (!to.path.startsWith('/')) return;
-  
-  if (to.path === '/'   ) return;
+  if (to.path === '/') return;
+
+  interface UserProfile {
+    id?: number;
+    username: string;
+    role: string;
+  }
 
   try {
-    const user = await $fetch('http://localhost:5000/api/auth/profile', {
+    const user = await $fetch<UserProfile>('http://localhost:5000/api/auth/profile', {
       credentials: 'include',
     });
-    if (!user || user.role?.toLowerCase() !== 'admin') {
-      if (to.path !== '/production') {
+
+    const isAdmin = !!user && typeof user.role === 'string' && user.role.toLowerCase() === 'admin';
+    if (!isAdmin) {
+      // Allow production routes (including logs) for non-admin users
+      if (!to.path.startsWith('/production')) {
         return navigateTo('/production');
       }
+      return;
     }
-    console.log('User Authenticated:', user.username);
   } catch (error) {
-    console.error(error);
-    await $fetch('http://localhost:5000/api/auth/logout', {
-      method: 'POST',
-      credentials: 'include',
-    }).catch(() => {});
+    // On auth error, ensure logout and send to login page
+    try {
+      await $fetch('http://localhost:5000/api/auth/logout', {
+        method: 'POST',
+        credentials: 'include',
+      });
+    } catch {}
     if (to.path !== '/') {
       return navigateTo('/');
     }

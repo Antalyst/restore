@@ -1,8 +1,32 @@
+const db = require("../../database/db");
 const express = require('express');
 const router = express.Router();
-const db = require('../../database/db');
 
-router.post
+router.get("/get/stage_stage2", async (req, res) => {
+  try {
+    const [rows] = await db.execute(`
+      SELECT * FROM stage_two
+    `);
+    res.send(rows)
+  } catch (e) {
+    console.error("error fetching remarks:", e.message);
+    res.status(500).json({ success: false, message: e.message });
+  }
+});
+
+
+router.get("/get/failed_stage", async (req, res) => {
+    try {
+      const [rows] = await db.execute(`
+        SELECT * FROM stage_two
+      `);
+      res.send(rows)
+    } catch (e) {
+      console.error("error fetching remarks:", e.message);
+      res.status(500).json({ success: false, message: e.message });
+    }
+  });
+
 
 
 module.exports = router;

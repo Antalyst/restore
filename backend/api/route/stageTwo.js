@@ -69,6 +69,7 @@ router.post("/add", async (req, res) => {
             LEFT JOIN stage_one s1 ON s1.id = s2.stage_one_id
             WHERE s1.date IS NOT NULL 
               AND STR_TO_DATE(s1.date, '%c/%e/%Y') >= (CURDATE() - INTERVAL 2 DAY)
+              AND s2.status_session = 'processing'
                 
               `
         );
@@ -99,6 +100,30 @@ router.post("/add", async (req, res) => {
         });
 
         res.json(withCodes);
+        } catch (e) {
+            res.status(500).json({ success: false, message: e.message });
+        }
+    });
+
+    // Return all stage two entries for logs (no date/status filter)
+    router.get("/get/all", async (req, res) => {
+        try {
+            const [rows] = await db.execute(
+                `SELECT 
+                    s1.total_produce,
+                    s1.reject_bilog as stage1bilog,
+                    s1.client,
+                    s1.produce,
+                    s1.date,
+                    s1.group_leader_id,
+                    s1.production_code,
+                    s2.*
+                 FROM stage_two s2
+                 LEFT JOIN stage_one s1 ON s1.id = s2.stage_one_id
+                 ORDER BY s2.id DESC`
+            );
+
+            res.json(rows);
         } catch (e) {
             res.status(500).json({ success: false, message: e.message });
         }
@@ -152,23 +177,110 @@ router.post("/add", async (req, res) => {
     
 
     router.put("/update/:id", async (req, res) => {
-            try {
-                // Ensure production_code is copied from stage_one if missing
-                const [rows] = await db.execute(
-                    `UPDATE stage_two s2 
-                        LEFT JOIN stage_one s1 ON s1.id = s2.stage_one_id
-                        SET s2.sacks = ?, s2.bilog = ?, s2.produced = ?, s2.status_session = 'complete',
-                            s2.production_code = COALESCE(s2.production_code, s1.production_code)
-                        WHERE s2.id = ?`,
-                    [req.body.sacks, req.body.bilog, req.body.produced, req.params.id]
-                );
-                rows.affectedRows > 0
-                    ? res.status(200).json({ success: true, message: "Unit updated successfully" })
-                    : res.status(404).json({ success: false, message: "Unit not found or failed to update" });
-            } catch (e) {
-                res.status(500).json({ success: false, message: e.message });
-            }
-        });
-    
+        try {
+            // Compute bilog delta so we can add it to items stock
+            const stageTwoId = req.params.id;
+            const incomingBilog = Number(req.body.bilog ?? 0);
 
+            const [existingRows] = await db.execute(
+                `SELECT bilog, stage_one_id FROM stage_two WHERE id = ? LIMIT 1`,
+                [stageTwoId]
+            );
+            const currentBilog = Number(existingRows?.[0]?.bilog ?? 0);
+            const stageOneId = existingRows?.[0]?.stage_one_id ?? null;
+            const bilogDelta = incomingBilog - currentBilog;
+
+            // Fetch produce for remainder tracking
+            let produceName = null;
+            if (stageOneId != null) {
+                const [prodRows] = await db.execute(
+                    `SELECT produce FROM stage_one WHERE id = ? LIMIT 1`,
+                    [stageOneId]
+                );
+                produceName = prodRows?.[0]?.produce || null;
+            }
+
+            // CREATE TABLE IF NOT EXISTS for sack remainder (per-produce)
+            await db.execute(`
+                CREATE TABLE IF NOT EXISTS sack_remainder (
+                    produce VARCHAR(100) PRIMARY KEY,
+                    remainder_kg INT NOT NULL DEFAULT 0
+                ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+            `);
+
+            // Compute sacks to use with carry-over remainder
+            const producedKg = Number(req.body.produced ?? 0);
+            let sacksUsed = 0;
+            let newRemainder = 0;
+            if (Number.isFinite(producedKg) && producedKg > 0 && produceName) {
+                const [remRows] = await db.execute(
+                    `SELECT remainder_kg FROM sack_remainder WHERE produce = ? LIMIT 1`,
+                    [produceName]
+                );
+                const prevRemainder = Number(remRows?.[0]?.remainder_kg ?? 0);
+                const combined = prevRemainder + producedKg;
+                sacksUsed = Math.floor(combined / 50);
+                newRemainder = combined % 50;
+                // Upsert new remainder
+                await db.execute(
+                    `INSERT INTO sack_remainder (produce, remainder_kg) VALUES (?, ?)
+                     ON DUPLICATE KEY UPDATE remainder_kg = VALUES(remainder_kg)`,
+                    [produceName, newRemainder]
+                );
+            }
+
+            // Ensure production_code is copied from stage_one if missing and store computed sacks
+            const [rows] = await db.execute(
+                `UPDATE stage_two s2 
+                    LEFT JOIN stage_one s1 ON s1.id = s2.stage_one_id
+                    SET s2.sacks = ?, s2.bilog = ?, s2.produced = ?, s2.status_session = 'complete',
+                        s2.production_code = COALESCE(s2.production_code, s1.production_code)
+                    WHERE s2.id = ?`,
+                [sacksUsed, req.body.bilog, req.body.produced, stageTwoId]
+            );
+
+            if (rows.affectedRows > 0) {
+                // Update Bilog item stock by the delta, if any
+                if (Number.isFinite(bilogDelta) && bilogDelta !== 0) {
+                    await db.execute(
+                        `UPDATE items 
+                         SET current_stock = GREATEST(current_stock + ?, 0)
+                         WHERE LOWER(name) = 'bilog'`
+                        , [bilogDelta]
+                    );
+                }
+                // Subtract full sacks used from items stock
+                if (sacksUsed > 0) {
+                    await db.execute(
+                        `UPDATE items
+                         SET current_stock = GREATEST(current_stock - ?, 0)
+                         WHERE LOWER(name) = 'sacks'`,
+                        [sacksUsed]
+                    );
+                }
+                return res.status(200).json({ success: true, message: "Unit updated successfully", sacks_used: sacksUsed, remainder_kg: newRemainder });
+            }
+
+            return res.status(404).json({ success: false, message: "Unit not found or failed to update" });
+        } catch (e) {
+            res.status(500).json({ success: false, message: e.message });
+        }
+    });
+
+    // Admin update for stage_two (production_code not editable)
+    router.put("/admin/update/:id", async (req, res) => {
+        try {
+            const { group_leader, bilog, produced, sacks, status_session } = req.body;
+            const [rows] = await db.execute(
+                `UPDATE stage_two SET group_leader = ?, bilog = ?, produced = ?, sacks = ?, status_session = ? WHERE id = ?`,
+                [group_leader, bilog, produced, sacks, status_session, req.params.id]
+            );
+            rows.affectedRows > 0
+                ? res.status(200).json({ success: true })
+                : res.status(404).json({ success: false, message: "Stage two not found" });
+        } catch (e) {
+            res.status(500).json({ success: false, message: e.message });
+        }
+    });
+    
 module.exports = router;

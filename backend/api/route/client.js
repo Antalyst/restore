@@ -14,4 +14,16 @@ router.get("/get", async (req, res) => {
   }
 });
 
+router.post("/add", async (req, res) => {
+  try {
+    const [rows] = await db.execute(`
+      INSERT INTO client(name) values(?);
+    `,[req.body.name]);
+    res.send(rows)
+  } catch (e) {
+    console.error("error fetching remarks:", e.message);
+    res.status(500).json({ success: false, message: e.message });
+  }
+});
+
 module.exports = router;

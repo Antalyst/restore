@@ -3,7 +3,7 @@
         <h1 class="text-2xl font-bold text-[#00796b]">Product</h1>
         <div class="gap-2">
             <div class="text-2xl font-bold text-[#00796b]" @click="toggle = !toggle"><h1 class="flex w-full justify-end px-4">Add Item</h1></div>
-            <form @submit.prevent="submit" :class="{'hidden': !toggle}" class="grid grid-cols-2 gap-2">
+            <form @submit.prevent="submit" :class="{'hidden': !toggle}" class="grid grid-cols-1 md:grid-cols-2 gap-2">
                 <div class="shadow-md p-2 rounded-md">
                     <div class="grid grid-cols-1">
                         <label class="text-lg font-semibold text-[#00796b]" for="productName">Product Name</label>
@@ -67,7 +67,7 @@
                     <h2 class="text-xl font-bold">Product Inventory</h2>
                 </div>
                 <div class="px-6 py-4 border-b border-gray-200 bg-gray-50">
-                    <div class="flex items-center justify-between">
+                    <div class="flex flex-col md:flex-row gap-3 md:items-center md:justify-between">
                         <div class="grid grid-cols-1">
                             <label for="Category" class="font-semibold text-lg text-[#00796b]">Category</label>
                             <select v-model="selectedFilter" name="Category" class="outline-[#00796b] p-2 bg-white border border-gray-300 rounded-md focus:ring-2 focus:ring-[#00796b] focus:border-[#00796b]">
@@ -83,7 +83,7 @@
                     </div>
                 </div>
                 <div class="overflow-x-auto">
-                    <table class="w-full">
+                    <table class="w-full min-w-[900px]">
                         <thead class="bg-gray-50 border-b border-gray-200">
                             <tr>
                                 <th class="px-6 py-3 text-left text-xs font-medium text-[#00796b] uppercase tracking-wider">Image</th>

@@ -36,7 +36,8 @@
               <nuxt-link @click="menuOpen = false" to="/admin/adjustlogs" class="p-2 pl-4 text-sm rounded-r-full">Adjust Logs</nuxt-link>
             </div>
           </div>
-          <nuxt-link @click="menuOpen = false" to="/admin/settings" class="p-2 pl-4 text-md"> <Icon name="mdi:cog-outline" /> Settings</nuxt-link>
+          <nuxt-link @click="menuOpen = false" to="/admin/logsProduction" class="p-2 pl-4 text-md rounded-r-full"> <Icon name="mdi:cog-outline" /> Logs</nuxt-link>
+          <nuxt-link @click="menuOpen = false" to="/admin/settings" class="p-2 pl-4 text-md rounded-r-full"> <Icon name="mdi:cog-outline" /> Settings</nuxt-link>
         </aside>
       </div>
 

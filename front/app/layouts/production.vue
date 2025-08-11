@@ -1,20 +1,25 @@
 <template>
-  <div class="min-h-screen  flex gap-1">
-    <header class=" p-4 flex flex-col gap-2 bg-stone-100 m-2 rounded-md border-l-none ">
+  <div class="min-h-screen flex flex-col md:flex-row gap-1">
+    <header class="p-4 flex flex-col md:justify-between gap-2 bg-stone-100 m-2 rounded-md border-l-none w-full md:w-64 md:sticky md:top-0 md:h-[calc(100vh-1rem)]">
       <div>
         <h1 class="text-teal-800 text-center text-3xl font-bold pb-4" >SSSE</h1>
       </div>
 
       <div class="flex-1">
-        <aside class=" flex flex-col space-y-2 text-md w-[160px]">
-          <nuxt-link to="/production" class="p-2 pl-4 text-md  rounded-r-full ">Add Production</nuxt-link>
+        <aside class="flex flex-row md:flex-col md:space-y-2 space-x-2 md:space-x-0 text-md w-full md:w-auto">
+          <nuxt-link to="/production" class="p-2 pl-4 text-md rounded-md md:rounded-r-full w-full md:w-auto">Add Production</nuxt-link>
+          <nuxt-link to="/production/logs/" class="p-2 pl-4 text-md rounded-md md:rounded-r-full w-full md:w-auto">Logs</nuxt-link>
         </aside>
       </div>
-      <div class="">
-        <button @click="logout" class=" text-[#00796b] px-6 py-2  border-[#00796b] border rounded-md">  <Icon name="mdi:logout" class="" />Logout</button>
+      <div class="mt-2 md:mt-0">
+        <button @click="logout" class="text-[#00796b] px-6 py-2 border-[#00796b] border rounded-md w-full md:w-auto flex items-center justify-center gap-2">
+          <Icon name="mdi:logout" />Logout
+        </button>
       </div>
     </header>
-    <slot />
+    <div class="flex-1 m-2">
+      <slot />
+    </div>
   </div>
 </template>
 <script setup>
@@ -23,7 +28,9 @@ const person = ref([]);
 
 onMounted(async ()=>{
   try{
-    person.value = await $fetch(`http://localhost:5000/api/auth/profile`)
+    person.value = await $fetch(`http://localhost:5000/api/auth/profile`, {
+      credentials: 'include'
+    })
     console.log(person.value)
   }catch(e){
     console.log(e)
